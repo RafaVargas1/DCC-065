@@ -1,0 +1,82 @@
+import * as THREE from "three";
+
+
+export const startGame = (baseScenario, gameWidth) => {
+    
+  const basicBlueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+  const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+
+  const wallThickness = 0.5;
+  const brickHeight = 1;
+  const brickWidth = 1;
+  const brickMargin = 0.15;
+
+
+  const buildBall = () => {
+    const ballGeometry = new THREE.SphereGeometry(0.4);
+    const ballMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff  });
+    const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+
+    ball.translateY(1.4 * gameWidth / -2);
+    
+    baseScenario.add(ball);
+  }
+
+  const buildBricks = () => {
+    const brickGeometry = new THREE.BoxGeometry(brickWidth, brickHeight , 1);
+
+    const initilPositionX = (0 - gameWidth/2) + brickWidth + wallThickness/2;
+    const initilPositionY = (0 + gameWidth) - brickHeight;
+
+    const bricksAmount = ((gameWidth - wallThickness )/(brickWidth + 0.3));
+
+    const totalLines = 9;
+
+    for (let column=0; column < bricksAmount; column++){
+      for (let line=0; line < totalLines; line++){
+        const brick = new THREE.Mesh(brickGeometry, phongBlueMaterial);
+
+        brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
+        brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
+
+        baseScenario.add(brick)
+      }
+    }
+
+  }
+
+  const buildWalls = () => {
+
+    const verticalWallGeometry = new THREE.BoxGeometry(wallThickness, 2*gameWidth, 1);
+    const horizontalWallGeometry = new THREE.BoxGeometry(gameWidth, wallThickness, 1);
+
+    const leftWall = new THREE.Mesh(verticalWallGeometry, basicBlueMaterial);
+    const topWall = new THREE.Mesh(horizontalWallGeometry, basicBlueMaterial);
+    const rightWall = new THREE.Mesh(verticalWallGeometry, basicBlueMaterial);
+
+    leftWall.translateX((gameWidth / -2) + wallThickness/2);
+    topWall.translateY(gameWidth);
+    rightWall.translateX((gameWidth / 2) - wallThickness/2); 
+
+    [leftWall, rightWall, topWall].forEach( item => {
+      baseScenario.add(item);
+    })
+    
+  }
+
+  const buildHitter = () => {
+    const hitterGeometry = new THREE.BoxGeometry(0.225 * gameWidth, 0.5, 1);
+    const hitter = new THREE.Mesh(hitterGeometry, phongBlueMaterial);
+  
+    hitter.translateY(1.5 * gameWidth / -2);
+
+    baseScenario.add(hitter);
+  }
+
+  buildWalls();
+  buildBall();
+  buildHitter();
+  buildBricks();      
+  
+}
+  
