@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 export const wallColisionHandler = ( ball, wallsMeshArray, ballVelocity ) => {
     
-    const calculateReflection = (wallCollided, sphere, wallIndex) => {
+    const calculateReflection = (wallIndex) => {
         let normal;
 
         switch (wallIndex){
@@ -31,7 +31,7 @@ export const wallColisionHandler = ( ball, wallsMeshArray, ballVelocity ) => {
             const boxCollided = new THREE.Box3().setFromObject(wall); 
 
             if (boxCollided.intersectsSphere(sphere)){
-                calculateReflection(boxCollided, sphere, wallIndex);
+                calculateReflection(wallIndex);
             }
         })
     }
@@ -39,4 +39,21 @@ export const wallColisionHandler = ( ball, wallsMeshArray, ballVelocity ) => {
     detectColision();
 
     return {  ballVelocity }
+}
+
+export const hitterColisionHandler = () => {
+
+    const detectColision = () => {
+        const sphere = new THREE.Sphere(ball.position, ball.scale.x); 
+
+        wallsMeshArray.forEach( (wall, wallIndex )=> {
+            const boxCollided = new THREE.Box3().setFromObject(wall); 
+
+            if (boxCollided.intersectsSphere(sphere)){
+                calculateReflection(wallIndex);
+            }
+        })
+    }
+
+    detectColision();
 }

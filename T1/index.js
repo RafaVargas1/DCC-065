@@ -45,14 +45,16 @@ let ballPosition = new THREE.Vector3(0, 0, 0);
 let ballVelocity = new THREE.Vector3(0.1, 0.1, 0);
 
 
-let { ballMesh, wallsMeshArray, bricksMatrix } = startGame(backgroundContent, gameWidth);
+let { ball, wallArray, bricksMatrix, hitter } = startGame(backgroundContent, gameWidth);
 
 const render = () => {
     requestAnimationFrame(render);
     keyboardUpdate(canvas);
 
-    ({ballPosition} = ballMovementHandler( ballMesh, ballPosition, ballVelocity ));
-    ({ballVelocity} = wallColisionHandler(ballMesh, wallsMeshArray, ballVelocity))
+    ({ballPosition} = ballMovementHandler( ball, ballPosition, ballVelocity ));
+    ({ballVelocity} = wallColisionHandler(ball, wallArray, ballVelocity))
+    ({ballVelocity} = hitterColisionHandler(ball, wallArray, ballVelocity))
+    
     renderer.render(scene, camera);
 };
 
