@@ -15,11 +15,14 @@ export const startGame = (baseScenario, gameWidth) => {
   const buildBall = () => {
     const ballGeometry = new THREE.SphereGeometry(0.4);
     const ballMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
-    const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+    
+    const ballMesh = new THREE.Mesh(ballGeometry, ballMaterial);
 
-    ball.translateY(1.4 * gameWidth / -2);
+    ballMesh.translateY(1.4 * gameWidth / -2);
 
-    baseScenario.add(ball);
+    baseScenario.add(ballMesh);
+
+    return ballMesh;
   }
 
   const buildBricks = () => {
@@ -32,15 +35,23 @@ export const startGame = (baseScenario, gameWidth) => {
 
     const totalLines = 9;
 
+    let bricksMatrix = [];
+
     for (let column = 0; column < bricksAmount; column++) {
+      let brickRow = [];
+
       for (let line = 0; line < totalLines; line++) {
         const brick = new THREE.Mesh(brickGeometry, phongBlueMaterial);
 
         brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
         brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
+        
+        brickRow.push(brick);
 
         baseScenario.add(brick)
       }
+
+      bricksMatrix.push(brickRow);
     }
 
   }
@@ -58,9 +69,14 @@ export const startGame = (baseScenario, gameWidth) => {
     topWall.translateY(gameWidth);
     rightWall.translateX((gameWidth / 2) - wallThickness / 2);
 
-    [leftWall, rightWall, topWall].forEach(item => {
+
+    const wallsMeshArray = [leftWall, rightWall, topWall];
+
+    wallsMeshArray.forEach(item => {
       baseScenario.add(item);
     })
+
+    return wallsMeshArray;
 
   }
 
@@ -90,9 +106,22 @@ export const startGame = (baseScenario, gameWidth) => {
     baseScenario.add(hitter);
   }
 
-  buildWalls();
-  buildBall();
+
+
+
+  const wallsMeshArray = buildWalls();
   buildHitter();
-  buildBricks();
+  const bricksMatrix = buildBricks();
+  const ballMesh = buildBall();
+
+
+
+  return {
+    ballMesh,
+    wallsMeshArray,
+    bricksMatrix
+  }
+
+
 
 }
