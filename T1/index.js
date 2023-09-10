@@ -42,7 +42,7 @@ const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, sc
 
 
 let ballPosition = new THREE.Vector3(0, 0, 0);
-let ballVelocity = new THREE.Vector3(0, -0.1, 0);
+let ballVelocity = new THREE.Vector3(0, -0.2, 0);
 
 
 let { ball, wallsArray, bricksMatrix, hitter } = startGame(backgroundContent, gameWidth);

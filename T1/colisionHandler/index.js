@@ -56,39 +56,18 @@ export const hitterColisionHandler = (ball, ballVelocity, hitter) => {
     const calculateHitterReflection = (hitterIndex) => {
         let normal;
 
-        switch (hitterIndex){
-            case 0:
-                // normal = changeDirection(new THREE.Vector3(0, 1, 0), Math.PI/3, Math.PI/3);
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
-
-            case 1:
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
-
-            case 2:
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
-
-            case 3:
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
-
-            case 4:
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
-
-        }
-
-        console.log(normal)
-
-        const incidentVector = ballVelocity;
-        const reflectionVector = incidentVector.clone().sub(normal.clone().multiplyScalar(2 * incidentVector.dot(normal)));
-        console.log("=>");
-        console.log(reflectionVector)
-
+        let reflectionAngle;
         
+        reflectionAngle = ((hitterIndex + 1) * -1) * Math.PI / 6;
+
+        const reflectionDirection = new THREE.Vector3(Math.cos(reflectionAngle), Math.sin(reflectionAngle), 0);
+
+        const velocity = ballVelocity; 
+        const dotProduct = velocity.dot(reflectionDirection);
+        const reflectionVector = velocity.clone().sub(reflectionDirection.clone().multiplyScalar(2 * dotProduct));
+
         ballVelocity = reflectionVector;
+        ballVelocity.y = Math.abs(reflectionVector.y)
     }
 
 
