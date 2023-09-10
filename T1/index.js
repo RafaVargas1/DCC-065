@@ -42,7 +42,7 @@ const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, sc
 
 
 let ballPosition = new THREE.Vector3(0, 0, 0);
-const ballVelocity = new THREE.Vector3(0.1, 0.0, 0);
+let ballVelocity = new THREE.Vector3(0.1, 0.1, 0);
 
 
 let { ballMesh, wallsMeshArray, bricksMatrix } = startGame(backgroundContent, gameWidth);
@@ -52,7 +52,7 @@ const render = () => {
     keyboardUpdate(canvas);
 
     ({ballPosition} = ballMovementHandler( ballMesh, ballPosition, ballVelocity ));
-    ({} = wallColisionHandler(ballMesh, wallsMeshArray))
+    ({ballVelocity} = wallColisionHandler(ballMesh, wallsMeshArray, ballVelocity))
     renderer.render(scene, camera);
 };
 
