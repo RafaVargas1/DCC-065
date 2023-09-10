@@ -54,6 +54,7 @@ export const startGame = (baseScenario, gameWidth) => {
       bricksMatrix.push(brickRow);
     }
 
+    return bricksMatrix;
   }
 
   const buildWalls = () => {
