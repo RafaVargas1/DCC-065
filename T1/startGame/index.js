@@ -109,15 +109,10 @@ export const startGame = (baseScenario, gameWidth) => {
     return hitter;
   }
 
-
-
-
   const wallsArray = buildWalls();
   const hitter = buildHitter();
   const bricksMatrix = buildBricks();
   const ball = buildBall();
-
-
 
   return {
     hitter,

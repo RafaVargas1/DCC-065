@@ -130,7 +130,10 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 let boxHorizontalUp = new THREE.Box3().setFromPoints(hUp);
                 let boxHorizontalDown = new THREE.Box3().setFromPoints(hDown);
 
+
                 if ((boxHorizontalUp.intersectsSphere(sphere) || boxHorizontalDown.intersectsSphere(sphere) || boxVerticalLeft.intersectsSphere(sphere) || boxVerticalRight.intersectsSphere(sphere)) && brick.name != "broken") {
+
+                    
                     if (boxHorizontalUp.intersectsSphere(sphere)) {
                         calculateReflection("up");
                     }
@@ -147,8 +150,10 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                         calculateReflection("right");
                     }
 
+
                     if (brick.name == "hitted") {
                         baseScenario.remove(brick);
+
                         brick.name = "broken";
                     } else {
                         brick.name = "hitted";
@@ -186,13 +191,18 @@ export const hitterColisionHandler = (ball, ballVelocity, hitter) => {
 
         hitter.updateMatrixWorld()
 
-        hitter.children.forEach((hitterPart, index) => {
-            const boxCollided = new THREE.Box3().setFromObject(hitterPart);
+        for (let i=0; i < hitter.children.length; i++){
+            hitter.updateMatrixWorld();
+            hitter.children[i].updateMatrixWorld();
 
+            const boxCollided = new THREE.Box3().setFromObject(hitter.children[i]);
+            
             if (boxCollided.intersectsSphere(sphere)) {
-                calculateHitterReflection(index);
+                calculateHitterReflection(i);
+                break;
             }
-        })
+        }
+
     }
 
     detectHitterColision();
