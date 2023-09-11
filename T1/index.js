@@ -40,13 +40,10 @@ window.addEventListener(
 const camera = orthographicCameraInitialization(screenWidth, screenHeight);
 const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
 
-
 let { ball, wallsArray, bricksMatrix, hitter } = startGame(backgroundContent, gameWidth);
 
 let ballPosition = ball.position;
-let ballVelocity = new THREE.Vector3(0.1, 0.0, 0);
-
-console.log(ball);
+let ballVelocity = new THREE.Vector3(0.0, 0.1, 0);
 
 const render = () => {
     requestAnimationFrame(render);
@@ -55,7 +52,7 @@ const render = () => {
     ({ballPosition} = ballMovementHandler(ball, ballPosition, ballVelocity));
     ({ballVelocity} = wallColisionHandler(ball, wallsArray, ballVelocity));
     //({ballVelocity} = hitterColisionHandler(ball, wallArray, ballVelocity));
-    //({ballVelocity} = brickColisionHandler(ball, bricksMatrix, ballVelocity, backgroundContent));
+    ({ballVelocity} = brickColisionHandler(ball, bricksMatrix, ballVelocity, backgroundContent));
     
     renderer.render(scene, camera);
 };
