@@ -16,13 +16,13 @@ export const startGame = (baseScenario, gameWidth) => {
     const ballGeometry = new THREE.SphereGeometry(0.4);
     const ballMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
     
-    const ballMesh = new THREE.Mesh(ballGeometry, ballMaterial);
+    const ball = new THREE.Mesh(ballGeometry, ballMaterial);
 
-    ballMesh.translateY(1.4 * gameWidth / -2);
+    ball.translateY(1.4 * gameWidth / -2);
 
-    baseScenario.add(ballMesh);
+    baseScenario.add(ball);
 
-    return ballMesh;
+    return ball;
   }
 
   const buildBricks = () => {
@@ -71,13 +71,13 @@ export const startGame = (baseScenario, gameWidth) => {
     rightWall.translateX((gameWidth / 2) - wallThickness / 2);
 
 
-    const wallsMeshArray = [leftWall, rightWall, topWall];
+    const wallsArray = [leftWall, rightWall, topWall];
 
-    wallsMeshArray.forEach(item => {
+    wallsArray.forEach(item => {
       baseScenario.add(item);
     })
 
-    return wallsMeshArray;
+    return wallsArray;
 
   }
 
@@ -105,21 +105,24 @@ export const startGame = (baseScenario, gameWidth) => {
     hitter.name = "hitter";
 
     baseScenario.add(hitter);
+
+    return hitter;
   }
 
 
 
 
-  const wallsMeshArray = buildWalls();
-  buildHitter();
+  const wallsArray = buildWalls();
+  const hitter = buildHitter();
   const bricksMatrix = buildBricks();
-  const ballMesh = buildBall();
+  const ball = buildBall();
 
 
 
   return {
-    ballMesh,
-    wallsMeshArray,
+    hitter,
+    ball,
+    wallsArray,
     bricksMatrix
   }
 
