@@ -51,6 +51,20 @@ export const wallColisionHandler = (ball, wallsMeshArray, ballVelocity) => {
     return { ballVelocity }
 }
 
+export const floorColisionHandler = (ball, ballVelocity, gameWidth) => {
+
+    const detectColision = () => {
+        if (ball.position.y < 1.8 * gameWidth / -2) {
+            ball.position.copy(new THREE.Vector3(0.0, 1.4 * gameWidth / -2, 0.0));
+            ballVelocity = new THREE.Vector3(0.0, 0.3, 0.0);
+        }
+    }
+
+    detectColision();
+
+    return { ballVelocity }
+}
+
 export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScenario) => {
 
     const calculateReflection = (side) => {
@@ -152,35 +166,18 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
 export const hitterColisionHandler = (ball, ballVelocity, hitter) => {
 
     const calculateHitterReflection = (hitterIndex) => {
-        let normal;
+        let reflectionAngle;
+        
+        reflectionAngle = ((hitterIndex + 1) * -1) * Math.PI / 6;
 
-        switch (hitterIndex) {
-            case 0:
-                // normal = changeDirection(new THREE.Vector3(0, 1, 0), Math.PI/3, Math.PI/3);
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
+        const reflectionDirection = new THREE.Vector3(Math.cos(reflectionAngle), Math.sin(reflectionAngle), 0);
 
-            case 1:
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
+        const velocity = ballVelocity; 
+        const dotProduct = velocity.dot(reflectionDirection);
+        const reflectionVector = velocity.clone().sub(reflectionDirection.clone().multiplyScalar(2 * dotProduct));
 
-            case 2:
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
-
-            case 3:
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
-
-            case 4:
-                normal = new THREE.Vector3(0, 1, 0);
-                break;
-
-        }
-
-        const incidentVector = ballVelocity;
-        const reflectionVector = incidentVector.clone().sub(normal.clone().multiplyScalar(2 * incidentVector.dot(normal)));
         ballVelocity = reflectionVector;
+        ballVelocity.y = Math.abs(reflectionVector.y)
     }
 
 

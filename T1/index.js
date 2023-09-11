@@ -7,7 +7,7 @@ import { startGame } from './startGame/index.js'
 import { onMouseMove } from "./hitterMovement/index.js";
 import { keyboardUpdate } from "./Utils/Keyboard/index.js";
 import { ballMovementHandler } from "./ballHandler/index.js";
-import { wallColisionHandler, brickColisionHandler, hitterColisionHandler } from "./colisionHandler/index.js";
+import { wallColisionHandler, brickColisionHandler, hitterColisionHandler, floorColisionHandler } from "./colisionHandler/index.js";
 
 var canvas = document.querySelector('canvas');
 
@@ -43,7 +43,7 @@ const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, sc
 let { ball, wallsArray, bricksMatrix, hitter } = startGame(backgroundContent, gameWidth);
 
 let ballPosition = ball.position;
-let ballVelocity = new THREE.Vector3(0.0, 0.1, 0);
+let ballVelocity = new THREE.Vector3(0.0, 0.3, 0);
 
 const render = () => {
     requestAnimationFrame(render);
@@ -53,6 +53,7 @@ const render = () => {
     ({ballVelocity} = wallColisionHandler(ball, wallsArray, ballVelocity));
     ({ballVelocity} = hitterColisionHandler(ball, ballVelocity, hitter));
     ({ballVelocity} = brickColisionHandler(ball, bricksMatrix, ballVelocity, backgroundContent));
+    ({ballVelocity} = floorColisionHandler(ball, ballVelocity, gameWidth));
     
     renderer.render(scene, camera);
 };
