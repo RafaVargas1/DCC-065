@@ -7,7 +7,7 @@ import { startGame } from './startGame/index.js'
 import { onMouseMove } from "./hitterMovement/index.js";
 import { keyboardUpdate } from "./Utils/Keyboard/index.js";
 import { ballMovementHandler } from "./ballHandler/index.js";
-import { wallColisionHandler, brickColisionHandler } from "./colisionHandler/index.js";
+import { wallColisionHandler, brickColisionHandler, hitterColisionHandler } from "./colisionHandler/index.js";
 
 var canvas = document.querySelector('canvas');
 
@@ -51,7 +51,7 @@ const render = () => {
 
     ({ballPosition} = ballMovementHandler(ball, ballPosition, ballVelocity));
     ({ballVelocity} = wallColisionHandler(ball, wallsArray, ballVelocity));
-    //({ballVelocity} = hitterColisionHandler(ball, wallArray, ballVelocity));
+    ({ballVelocity} = hitterColisionHandler(ball, ballVelocity, hitter));
     ({ballVelocity} = brickColisionHandler(ball, bricksMatrix, ballVelocity, backgroundContent));
     
     renderer.render(scene, camera);
