@@ -43,7 +43,7 @@ const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, sc
 let { ball, wallsArray, bricksMatrix, hitter } = startGame(backgroundContent, gameWidth);
 
 let ballPosition = ball.position;
-let ballVelocity = new THREE.Vector3(0.0, 0.3, 0);
+let ballVelocity = new THREE.Vector3(0.0, -0.3, 0);
 
 const render = () => {
     requestAnimationFrame(render);

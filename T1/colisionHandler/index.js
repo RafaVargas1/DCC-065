@@ -13,6 +13,8 @@ function changeDirection(vector, inclination, azimuth) {
 
 export const wallColisionHandler = (ball, wallsMeshArray, ballVelocity) => {
 
+    const ballRadius = ball.geometry.parameters.radius;
+
     const calculateWallReflection = (wallIndex) => {
         let normal;
 
@@ -40,8 +42,32 @@ export const wallColisionHandler = (ball, wallsMeshArray, ballVelocity) => {
         wallsMeshArray.forEach((wall, wallIndex) => {
             const boxCollided = new THREE.Box3().setFromObject(wall);
 
+      
+            
             if (boxCollided.intersectsSphere(sphere)) {
-                calculateWallReflection(wallIndex);
+
+
+                if( wallIndex === 0){
+                    const wallWidth = wall.geometry.parameters.width;
+
+                    if ( ball.position.x - ballRadius < wall.position.x + wallWidth/2)
+                        calculateWallReflection(wallIndex);
+                        
+                } else if (wallIndex === 1) {
+                    const wallWidth = wall.geometry.parameters.width;
+                    
+                    if ( ball.position.x + ballRadius > wall.position.x - wallWidth/2)
+                        calculateWallReflection(wallIndex);
+                        
+                } else if (wallIndex == 2){
+                    const wallHeight = wall.geometry.parameters.height;
+
+                    if ( ball.position.y + ballRadius > wall.position.y - wallHeight/2)
+                      calculateWallReflection(wallIndex);
+                      
+                }
+                    
+
             }
         })
     }
