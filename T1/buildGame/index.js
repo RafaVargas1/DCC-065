@@ -33,7 +33,7 @@ export const buildGame = (baseScenario, gameWidth) => {
 
     const bricksAmount = ((gameWidth - wallThickness) / (brickWidth + 0.3));
 
-    const totalLines = 1;
+    const totalLines = 9;
 
     let bricksMatrix = [];
 
