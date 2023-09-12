@@ -24,20 +24,31 @@ function toggleFullscreen(canvas) {
     }
 }
 
-function pause() {
-
-}
-
-function reset() {
-    
+function reset(baseScenario) {
+    while (baseScenario.children.length > 0) {
+        const object = baseScenario.children[0];
+        baseScenario.remove(object);
+    }
 }
 
 var keyboard = new KeyboardState();
 
-export const keyboardUpdate = (canvas) => {
+export const keyboardUpdate = (canvas, gameRunning, gameStart, baseScenario, mustInitialize) => {
     keyboard.update();
 
-    if (keyboard.down("enter")) toggleFullscreen(canvas);
-    if (keyboard.down("space")) pause();
-    if (keyboard.down("R")) reset();
+    if (keyboard.down("enter")) {
+        toggleFullscreen(canvas);
+    }
+
+    if (keyboard.down("space") && gameStart) {
+        gameRunning = !gameRunning;
+    }
+
+    if (keyboard.down("R")) {
+        reset(baseScenario);        
+        window.dispatchEvent(mustInitialize);
+        gameRunning = false;
+    }
+
+    return { gameRunning };
 }

@@ -51,18 +51,21 @@ export const wallColisionHandler = (ball, wallsMeshArray, ballVelocity) => {
     return { ballVelocity }
 }
 
-export const floorColisionHandler = (ball, ballVelocity, gameWidth) => {
+export const floorColisionHandler = (ball, ballVelocity, gameWidth, gameRunning, hitter, gameStart) => {
 
     const detectColision = () => {
         if (ball.position.y < 1.8 * gameWidth / -2) {
             ball.position.copy(new THREE.Vector3(0.0, 1.4 * gameWidth / -2, 0.0));
-            ballVelocity = new THREE.Vector3(0.0, 0.3, 0.0);
+            ballVelocity = new THREE.Vector3(0.0, 0.0, 0.0);
+            gameRunning = false;
+            gameStart = false;
+            hitter.position.copy(new THREE.Vector3(0.0, 1.5 * 14 / -2, 1), 1);
         }
     }
 
     detectColision();
 
-    return { ballVelocity }
+    return { ballVelocity, gameRunning, gameStart }
 }
 
 export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScenario) => {
@@ -150,14 +153,15 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                         calculateReflection("right");
                     }
 
+                    baseScenario.remove(brick);
+                    brick.name = "broken";
 
-                    if (brick.name == "hitted") {
-                        baseScenario.remove(brick);
-
-                        brick.name = "broken";
-                    } else {
-                        brick.name = "hitted";
-                    }
+                    //if (brick.name == "hitted") {
+                    //    baseScenario.remove(brick);
+                    //    brick.name = "broken";
+                    //} else {
+                    //    brick.name = "hitted";
+                    //}
                 }
             })
         })

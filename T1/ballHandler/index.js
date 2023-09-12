@@ -1,10 +1,10 @@
-import * as THREE from "three";
-
-export const ballMovementHandler = ( ball, ballPosition, ballVelocity ) => {
+export const ballMovementHandler = ( ball, ballPosition, ballVelocity, gameRunning ) => {
     
     const defaultMovement = () => {
-        ballPosition.add(ballVelocity);
-        ball.position.copy(ballPosition);
+        if (gameRunning) {
+            ballPosition.add(ballVelocity);
+            ball.position.copy(ballPosition);
+        }
     }
 
     defaultMovement();

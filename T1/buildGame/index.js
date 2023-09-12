@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 
-export const startGame = (baseScenario, gameWidth) => {
+export const buildGame = (baseScenario, gameWidth) => {
 
   const basicBlueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
   const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
@@ -33,7 +33,7 @@ export const startGame = (baseScenario, gameWidth) => {
 
     const bricksAmount = ((gameWidth - wallThickness) / (brickWidth + 0.3));
 
-    const totalLines = 9;
+    const totalLines = 1;
 
     let bricksMatrix = [];
 
