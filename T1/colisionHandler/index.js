@@ -96,6 +96,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
     const calculateReflection = (side) => {
         let normal;
         // ballVelocity =  new THREE.Vector3(0, 0, 0);
+        const oldY = ballVelocity.y;
 
         switch (side) {
             case "up":
@@ -113,6 +114,12 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
         }
 
         ballVelocity.reflect(normal);
+
+     
+        if (oldY > 0 && ballVelocity.y > 0) {
+            ballVelocity.y = (ballVelocity.y) * -1;
+        }
+        
     }
 
     const detectColision = () => {
@@ -177,7 +184,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                         calculateReflection("up");
                         mustBroke = true;
                     }
-                }
+                }  
 
                 if (boxHorizontalDown.intersectsSphere(sphere) && brick.name != "broken") {
                     // const brickHit = isLeft && isRight;
@@ -187,7 +194,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                         calculateReflection("down");
                         mustBroke = true;
                     }
-                }
+                } 
                 
                 if (boxVerticalLeft.intersectsSphere(sphere) && brick.name != "broken") {
                     const brickHit = topHit && bottomHit;
@@ -196,7 +203,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                         calculateReflection("left");
                         mustBroke = true;
                     }
-                }
+                }  
 
                 if (boxVerticalRight.intersectsSphere(sphere) && brick.name != "broken") {
                     const brickHit = topHit && bottomHit;
@@ -230,19 +237,29 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
 
 export const hitterColisionHandler = (ball, ballVelocity, hitter) => {
 
+    const inclineVector = ( vector, angle ) => {
+        const module = vector.length();
+
+        const newX = module * Math.cos(angle);
+        const newY =  module * Math.sin(angle);
+      
+
+        const newVector = new THREE.Vector3(newX, newY, 0);
+
+        return newVector;
+
+    }
+
     const calculateHitterReflection = (hitterIndex) => {
         let reflectionAngle;
 
-        reflectionAngle = ((hitterIndex + 1) * -1) * Math.PI / 6;
+        reflectionAngle = ((5 - hitterIndex) * Math.PI / 6);
 
-        const reflectionDirection = new THREE.Vector3(Math.cos(reflectionAngle), Math.sin(reflectionAngle), 0);
+        const reflectionDirection = inclineVector( new THREE.Vector3(0, 1, 0), reflectionAngle);
+    
+        ballVelocity = ballVelocity.reflect(reflectionDirection);
 
-        const velocity = ballVelocity;
-        const dotProduct = velocity.dot(reflectionDirection);
-        const reflectionVector = velocity.clone().sub(reflectionDirection.clone().multiplyScalar(2 * dotProduct));
-
-        ballVelocity = reflectionVector;
-        ballVelocity.y = Math.abs(reflectionVector.y)
+        ballVelocity.y = Math.abs(ballVelocity.y);
     }
 
 
