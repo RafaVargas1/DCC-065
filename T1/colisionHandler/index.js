@@ -52,7 +52,7 @@ export const wallColisionHandler = (ball, wallsMeshArray, ballVelocity) => {
                     const wallWidth = wall.geometry.parameters.width;
 
                     if (ball.position.x + ballRadius > wall.position.x - wallWidth / 2)
-                        calculateWallReflection(wallIndex);                    
+                        calculateWallReflection(wallIndex);
                 } else if (wallIndex == 2) {
                     const wallHeight = wall.geometry.parameters.height;
 
@@ -86,7 +86,6 @@ export const floorColisionHandler = (ball, ballVelocity, gameWidth, gameRunning,
 }
 
 export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScenario) => {
-
     const ballRadius = ball.geometry.parameters.radius;
 
     const calculateReflection = (side) => {
@@ -107,9 +106,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 break;
         }
 
-        const incidentVector = ballVelocity;
-        const reflectionVector = incidentVector.clone().sub(normal.clone().multiplyScalar(2 * incidentVector.dot(normal)));
-        ballVelocity = reflectionVector;
+        ballVelocity.reflect(normal);
     }
 
     const detectColision = () => {
@@ -137,9 +134,9 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                     points[3]
                 ];
 
-                const hUp = [
+                const hUp = [     
                     points[0],
-                    points[1]
+                    points[1]               
                 ];
 
                 const hDown = [
@@ -152,57 +149,63 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 let boxHorizontalUp = new THREE.Box3().setFromPoints(hUp);
                 let boxHorizontalDown = new THREE.Box3().setFromPoints(hDown);
 
-                if ((boxHorizontalUp.intersectsSphere(sphere) || boxHorizontalDown.intersectsSphere(sphere) || boxVerticalLeft.intersectsSphere(sphere) || boxVerticalRight.intersectsSphere(sphere)) && brick.name != "broken") {
-                    let mustBroke = false;
+                let mustBroke = false;
+                const sideWidth = brick.geometry.parameters.width;
+                const sideHeight = brick.geometry.parameters.height;
 
-                    if (boxHorizontalUp.intersectsSphere(sphere)) {
-                        const sideHeight = brick.geometry.parameters.height;
+                const upHit = (ball.position.y - ballRadius) < (brick.position.y + sideHeight / 2);
+                const downHit = (ball.position.y + ballRadius) > (brick.position.y - sideHeight / 2);
+                const leftHit = (ball.position.x + ballRadius) > (brick.position.x - sideWidth / 2);
+                const rightHit = (ball.position.x - ballRadius) < (brick.position.x + sideWidth / 2);
 
-                        if (ball.position.y - ballRadius < brick.position.y + sideHeight / 2) {
-                            calculateReflection("up");
-                            mustBroke = true;
-                        }
-                    } else {
-                        if (boxHorizontalDown.intersectsSphere(sphere)) {
-                            const sideHeight = brick.geometry.parameters.height;
-    
-                            if (ball.position.y + ballRadius > brick.position.y - sideHeight / 2) {
-                                calculateReflection("down");
-                                mustBroke = true;
-                            }
-                        } else {
-                            if (boxVerticalLeft.intersectsSphere(sphere)) {
-                                const sideWidth = brick.geometry.parameters.width;
-        
-                                if (ball.position.x - ballRadius < brick.position.x + sideWidth / 2) {
-                                    calculateReflection("left");
-                                    mustBroke = true;
-                                }
-                            } else {
-                                if (boxVerticalRight.intersectsSphere(sphere)) {
-                                    const sideWidth = brick.geometry.parameters.width;
-            
-                                    if (ball.position.x + ballRadius > brick.position.x - sideWidth / 2) {
-                                        calculateReflection("right");
-                                        mustBroke = true;
-                                    }
-                                }
-                            }
-                        }
+                if (boxHorizontalUp.intersectsSphere(sphere) && brick.name != "broken") {
+                    const brickHit = leftHit && rightHit;
+
+                    if (upHit && brickHit) {
+                        calculateReflection("up");
+                        mustBroke = true;
                     }
-
-                    if (mustBroke) {
-                        baseScenario.remove(brick);
-                        brick.name = "broken";
-                    }
-
-                    //if (brick.name == "hitted") {
-                    //    baseScenario.remove(brick);
-                    //    brick.name = "broken";
-                    //} else {
-                    //    brick.name = "hitted";
-                    //}
                 }
+
+                if (boxHorizontalDown.intersectsSphere(sphere) && brick.name != "broken") {
+                    const brickHit = leftHit && rightHit;
+
+                    if (downHit && brickHit) {
+                        calculateReflection("down");
+                        mustBroke = true;
+                    }
+                }
+                
+                if (boxVerticalLeft.intersectsSphere(sphere) && brick.name != "broken") {
+                    const brickHit = upHit && downHit;
+
+                    if (leftHit && brickHit) {
+                        calculateReflection("left");
+                        mustBroke = true;
+                    }
+                }
+
+                if (boxVerticalRight.intersectsSphere(sphere) && brick.name != "broken") {
+                    const brickHit = upHit && downHit;
+
+                    if (rightHit && brickHit) {
+                        calculateReflection("right");
+                        mustBroke = true;
+                    }
+                }
+
+                if (mustBroke) {
+                    baseScenario.remove(brick);
+                    brick.name = "broken";
+                }
+
+                //if (brick.name == "hitted") {
+                //    baseScenario.remove(brick);
+                //    brick.name = "broken";
+                //} else {
+                //    brick.name = "hitted";
+                //}
+
             })
         })
     }

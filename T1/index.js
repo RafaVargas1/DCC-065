@@ -43,7 +43,7 @@ window.addEventListener(
 window.addEventListener(
     "mousemove",
     (event) => {
-        onMouseMove(event, backgroundContent, backgroundContainer, camera, gameRunning)
+        onMouseMove(event, backgroundContent, backgroundContainer, camera, gameRunning, gameStart)
     },
     false
 );
@@ -91,7 +91,7 @@ const render = () => {
     ({ gameRunning } = keyboardUpdate(canvas, gameRunning, gameStart, backgroundContent, mustInitialize));
     ({ gameRunning, gameStart, gameFinish } = checkGame(bricksMatrix, gameRunning, gameStart, gameFinish));
 
-    ({ ballPosition } = ballMovementHandler(ball, ballPosition, ballVelocity, gameRunning));
+    ({ ballPosition } = ballMovementHandler(ball, ballPosition, ballVelocity, gameRunning, gameStart, hitter));
     ({ ballVelocity } = wallColisionHandler(ball, wallsArray, ballVelocity));
     ({ ballVelocity } = hitterColisionHandler(ball, ballVelocity, hitter));
     ({ ballVelocity } = brickColisionHandler(ball, bricksMatrix, ballVelocity, backgroundContent));
