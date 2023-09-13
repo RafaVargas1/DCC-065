@@ -11,7 +11,7 @@ function changeDirection(vector, inclination, azimuth) {
     return new THREE.Vector3(x, y, 0);
 }
 
-export const wallColisionHandler = (ball, wallsMeshArray, ballVelocity) => {
+export const wallColisionHandler = (ball, wallsMeshArray, ballVelocity, wallColision) => {
 
     const ballRadius = ball.geometry.parameters.radius;
 
@@ -31,9 +31,12 @@ export const wallColisionHandler = (ball, wallsMeshArray, ballVelocity) => {
                 break;
 
         }
+
         const incidentVector = ballVelocity;
         const reflectionVector = incidentVector.clone().sub(normal.clone().multiplyScalar(2 * incidentVector.dot(normal)));
         ballVelocity = reflectionVector;
+
+        wallColision = true;
     }
 
     const detectWallColision = () => {
@@ -63,9 +66,11 @@ export const wallColisionHandler = (ball, wallsMeshArray, ballVelocity) => {
         })
     }
 
-    detectWallColision();
+    if (!wallColision) {
+        detectWallColision();
+    }
 
-    return { ballVelocity }
+    return { ballVelocity, wallColision }
 }
 
 export const floorColisionHandler = (ball, ballVelocity, gameWidth, gameRunning, hitter, gameStart) => {
@@ -116,7 +121,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
             brickRow.forEach(brick => {
                 const brickX = brick.position.x;
                 const brickY = brick.position.y;
-
+                
                 const points = [
                     new THREE.Vector3(brickX - 0.5, brickY + 0.5, 0.0),
                     new THREE.Vector3(brickX + 0.5, brickY + 0.5, 0.0),
@@ -153,13 +158,18 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 const sideWidth = brick.geometry.parameters.width;
                 const sideHeight = brick.geometry.parameters.height;
 
-                const upHit = (ball.position.y - ballRadius) < (brick.position.y + sideHeight / 2);
-                const downHit = (ball.position.y + ballRadius) > (brick.position.y - sideHeight / 2);
-                const leftHit = (ball.position.x + ballRadius) > (brick.position.x - sideWidth / 2);
-                const rightHit = (ball.position.x - ballRadius) < (brick.position.x + sideWidth / 2);
+                const upHit = ball.position.y > brickY;
+                const downHit = ball.position.y < brickY;
+                const leftHit = ball.position.x < brickX;
+                const rightHit = ball.position.x > brickX;
+
+                const isUp = (ball.position.y - ballRadius) < (brick.position.y + sideHeight / 2);
+                const isDown = (ball.position.y + ballRadius) > (brick.position.y - sideHeight / 2);
+                const isLeft = (ball.position.x + ballRadius) > (brick.position.x - sideWidth / 2);
+                const isRight = (ball.position.x - ballRadius) < (brick.position.x + sideWidth / 2);
 
                 if (boxHorizontalUp.intersectsSphere(sphere) && brick.name != "broken") {
-                    const brickHit = leftHit && rightHit;
+                    const brickHit = isLeft && isRight;
 
                     if (upHit && brickHit) {
                         calculateReflection("up");
@@ -168,7 +178,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 }
 
                 if (boxHorizontalDown.intersectsSphere(sphere) && brick.name != "broken") {
-                    const brickHit = leftHit && rightHit;
+                    const brickHit = isLeft && isRight;
 
                     if (downHit && brickHit) {
                         calculateReflection("down");
@@ -177,7 +187,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 }
                 
                 if (boxVerticalLeft.intersectsSphere(sphere) && brick.name != "broken") {
-                    const brickHit = upHit && downHit;
+                    const brickHit = isUp && isDown;
 
                     if (leftHit && brickHit) {
                         calculateReflection("left");
@@ -186,7 +196,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 }
 
                 if (boxVerticalRight.intersectsSphere(sphere) && brick.name != "broken") {
-                    const brickHit = upHit && downHit;
+                    const brickHit = isUp && isDown;
 
                     if (rightHit && brickHit) {
                         calculateReflection("right");
@@ -199,12 +209,12 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                     brick.name = "broken";
                 }
 
-                //if (brick.name == "hitted") {
-                //    baseScenario.remove(brick);
-                //    brick.name = "broken";
-                //} else {
-                //    brick.name = "hitted";
-                //}
+               //if (brick.name == "hitted") {
+               //    baseScenario.remove(brick);
+               //    brick.name = "broken";
+               //} else {
+               //    brick.name = "hitted";
+               //}
 
             })
         })

@@ -7,9 +7,9 @@ export const buildGame = (baseScenario, gameWidth) => {
   const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
 
   const wallThickness = 0.5;
-  const brickHeight = 1;
-  const brickWidth = 1;
-  const brickMargin = 0.15;
+  const brickHeight = 0.8;
+  const brickWidth = 1.2;
+  const brickMargin = 0.18;
 
 
   const buildBall = () => {
@@ -31,7 +31,7 @@ export const buildGame = (baseScenario, gameWidth) => {
     const initilPositionX = (0 - gameWidth / 2) + brickWidth + wallThickness / 2;
     const initilPositionY = (0 + gameWidth) - brickHeight;
 
-    const bricksAmount = ((gameWidth - wallThickness) / (brickWidth + 0.3));
+    const bricksAmount = ((gameWidth - wallThickness) / (brickWidth + 0.36));
 
     const totalLines = 9;
 

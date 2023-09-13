@@ -43,7 +43,7 @@ window.addEventListener(
 window.addEventListener(
     "mousemove",
     (event) => {
-        onMouseMove(event, backgroundContent, backgroundContainer, camera, gameRunning, gameStart)
+        onMouseMove(event, backgroundContent, backgroundContainer, camera, gameRunning, gameStart, gameFinish)
     },
     false
 );
@@ -59,7 +59,7 @@ window.addEventListener(
 const camera = orthographicCameraInitialization(screenWidth, screenHeight);
 const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
 
-let ball, wallsArray, bricksMatrix, hitter, ballPosition, ballVelocity, gameStart, gameRunning, gameFinish;
+let ball, wallsArray, bricksMatrix, hitter, ballPosition, ballVelocity, gameStart, gameRunning, gameFinish, wallColision;
 
 const initializeGame = () => {
     let components = buildGame(backgroundContent, gameWidth);
@@ -74,6 +74,7 @@ const initializeGame = () => {
     gameStart = false;
     gameRunning = false;
     gameFinish = false;
+    wallColision = false;
 }
 
 initializeGame();
@@ -86,13 +87,20 @@ const onMouseClick = () => {
     }
 }
 
+const colisionTimer = () => {
+    if (wallColision) {
+        setTimeout(() => {wallColision = false}, 20);
+    }
+}
+
 const render = () => {
     requestAnimationFrame(render);
+    colisionTimer();
     ({ gameRunning } = keyboardUpdate(canvas, gameRunning, gameStart, backgroundContent, mustInitialize));
     ({ gameRunning, gameStart, gameFinish } = checkGame(bricksMatrix, gameRunning, gameStart, gameFinish));
 
-    ({ ballPosition } = ballMovementHandler(ball, ballPosition, ballVelocity, gameRunning, gameStart, hitter));
-    ({ ballVelocity } = wallColisionHandler(ball, wallsArray, ballVelocity));
+    ({ ballPosition } = ballMovementHandler(ball, ballPosition, ballVelocity, gameRunning, gameStart, hitter, gameFinish));
+    ({ ballVelocity, wallColision } = wallColisionHandler(ball, wallsArray, ballVelocity, wallColision));
     ({ ballVelocity } = hitterColisionHandler(ball, ballVelocity, hitter));
     ({ ballVelocity } = brickColisionHandler(ball, bricksMatrix, ballVelocity, backgroundContent));
     ({ ballVelocity, gameRunning, gameStart } = floorColisionHandler(ball, ballVelocity, gameWidth, gameRunning, hitter, gameStart));
