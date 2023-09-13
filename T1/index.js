@@ -83,7 +83,7 @@ const onMouseClick = () => {
     if (!gameRunning && !gameStart && !gameFinish) {
         gameStart = true;
         gameRunning = true;
-        ballVelocity = new THREE.Vector3(0.0, 0.3, 0);
+        ballVelocity = new THREE.Vector3(0, 0.25, 0);
     }
 }
 
