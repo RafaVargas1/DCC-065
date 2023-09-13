@@ -95,6 +95,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
 
     const calculateReflection = (side) => {
         let normal;
+        // ballVelocity =  new THREE.Vector3(0, 0, 0);
 
         switch (side) {
             case "up":
@@ -158,36 +159,38 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 const sideWidth = brick.geometry.parameters.width;
                 const sideHeight = brick.geometry.parameters.height;
 
-                const upHit = ball.position.y > brickY;
-                const downHit = ball.position.y < brickY;
-                const leftHit = ball.position.x < brickX;
-                const rightHit = ball.position.x > brickX;
+                // const upHit = ball.position.y > brickY;
+                // const downHit = ball.position.y < brickY;
+                // const leftHit = ball.position.x < brickX;
+                // const rightHit = ball.position.x > brickX;
 
-                const isUp = (ball.position.y - ballRadius) < (brick.position.y + sideHeight / 2);
-                const isDown = (ball.position.y + ballRadius) > (brick.position.y - sideHeight / 2);
-                const isLeft = (ball.position.x + ballRadius) > (brick.position.x - sideWidth / 2);
-                const isRight = (ball.position.x - ballRadius) < (brick.position.x + sideWidth / 2);
+                const topHit = (ball.position.y - ballRadius) < (brick.position.y + sideHeight / 2);
+                const bottomHit = (ball.position.y + ballRadius) > (brick.position.y - sideHeight / 2);
+                const leftHit = (ball.position.x + ballRadius) > (brick.position.x - sideWidth / 2);
+                const rightHit = (ball.position.x - ballRadius) < (brick.position.x + sideWidth / 2);
+
 
                 if (boxHorizontalUp.intersectsSphere(sphere) && brick.name != "broken") {
-                    const brickHit = isLeft && isRight;
+                    const brickHit = leftHit && rightHit;
 
-                    if (upHit && brickHit) {
+                    if (topHit && brickHit) {
                         calculateReflection("up");
                         mustBroke = true;
                     }
                 }
 
                 if (boxHorizontalDown.intersectsSphere(sphere) && brick.name != "broken") {
-                    const brickHit = isLeft && isRight;
+                    // const brickHit = isLeft && isRight;
+                    const brickHit = leftHit && rightHit;
 
-                    if (downHit && brickHit) {
+                    if (bottomHit && brickHit) {
                         calculateReflection("down");
                         mustBroke = true;
                     }
                 }
                 
                 if (boxVerticalLeft.intersectsSphere(sphere) && brick.name != "broken") {
-                    const brickHit = isUp && isDown;
+                    const brickHit = topHit && bottomHit;
 
                     if (leftHit && brickHit) {
                         calculateReflection("left");
@@ -196,7 +199,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 }
 
                 if (boxVerticalRight.intersectsSphere(sphere) && brick.name != "broken") {
-                    const brickHit = isUp && isDown;
+                    const brickHit = topHit && bottomHit;
 
                     if (rightHit && brickHit) {
                         calculateReflection("right");
