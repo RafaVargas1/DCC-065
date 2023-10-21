@@ -90,7 +90,7 @@ export const floorColisionHandler = (ball, ballVelocity, gameWidth, gameRunning,
     return { ballVelocity, gameRunning, gameStart }
 }
 
-export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScenario) => {
+export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScenario, fase) => {
     const ballRadius = ball.geometry.parameters.radius;
 
     const calculateReflection = (side) => {
@@ -125,6 +125,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
     const detectColision = () => {
         const sphere = new THREE.Sphere(ball.position, ball.scale.x);
 
+        // const totalBricks = 
         bricksMatrix.forEach(brickRow => {
             brickRow.forEach(brick => {
                 const brickX = brick.position.x;
@@ -215,7 +216,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
                 }
 
                 if (mustBroke) {
-                    baseScenario.remove(brick);
+                    baseScenario.remove(brick);                    
                     brick.name = "broken";
                 }
 
@@ -232,7 +233,7 @@ export const brickColisionHandler = (ball, bricksMatrix, ballVelocity, baseScena
 
     detectColision();
 
-    return { ballVelocity }
+    return { ballVelocity, fase }
 }
 
 export const hitterColisionHandler = (ball, ballVelocity, hitter) => {

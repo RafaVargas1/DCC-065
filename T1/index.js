@@ -1,7 +1,8 @@
 import * as THREE from "three";
 
 import { initRenderer, onWindowResize, initDefaultBasicLight } from "../libs/util/util.js";
-import { orthographicCameraInitialization } from "./Utils/OrthographicCamera/index.js";
+// import { orthographicCameraInitialization } from "./Utils/OrthographicCamera/index.js";
+import { perspectiveCameraInitialization } from "./Utils/PerspectiveCamera/index.js";
 import { setupBackground } from './setupBackground/index.js'
 import { buildGame } from './buildGame/index.js'
 import { checkGame } from "./checkGame/index.js";
@@ -10,6 +11,7 @@ import { keyboardUpdate } from "./Utils/Keyboard/index.js";
 import { ballMovementHandler } from "./ballHandler/index.js";
 import { wallColisionHandler, brickColisionHandler, hitterColisionHandler, floorColisionHandler } from "./colisionHandler/index.js";
 
+let fase = 2;
 const scene = new THREE.Scene();
 
 const renderer = initRenderer();
@@ -56,13 +58,15 @@ window.addEventListener(
     false
 );
 
-const camera = orthographicCameraInitialization(screenWidth, screenHeight);
+// const camera = orthographicCameraInitialization(screenWidth, screenHeight);
+const camera = perspectiveCameraInitialization(screenWidth, screenHeight);
+
 const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
 
 let ball, wallsArray, bricksMatrix, hitter, ballPosition, ballVelocity, gameStart, gameRunning, gameFinish, wallColision;
 
 const initializeGame = () => {
-    let components = buildGame(backgroundContent, gameWidth);
+    let components = buildGame(backgroundContent, gameWidth, fase);
 
     ball = components.ball;
     wallsArray = components.wallsArray;
@@ -102,9 +106,8 @@ const render = () => {
     ({ ballPosition } = ballMovementHandler(ball, ballPosition, ballVelocity, gameRunning, gameStart, hitter, gameFinish));
     ({ ballVelocity, wallColision } = wallColisionHandler(ball, wallsArray, ballVelocity, wallColision));
     ({ ballVelocity } = hitterColisionHandler(ball, ballVelocity, hitter));
-    ({ ballVelocity } = brickColisionHandler(ball, bricksMatrix, ballVelocity, backgroundContent));
+    ({ ballVelocity, fase } = brickColisionHandler(ball, bricksMatrix, ballVelocity, backgroundContent, fase));
     ({ ballVelocity, gameRunning, gameStart } = floorColisionHandler(ball, ballVelocity, gameWidth, gameRunning, hitter, gameStart));
-
     renderer.render(scene, camera);
 };
 

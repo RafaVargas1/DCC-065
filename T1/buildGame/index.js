@@ -1,14 +1,13 @@
 import * as THREE from "three";
 
 
-export const buildGame = (baseScenario, gameWidth) => {
+export const buildGame = (baseScenario, gameWidth, fase) => {
 
   const basicBlueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
   const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
-
+  const phongGreyMaterial = new THREE.MeshPhongMaterial({ color: 0xaaaaaa });
   const wallThickness = 0.5;
   const brickHeight = 0.8;
-  const brickWidth = 1.2;
   const brickMargin = 0.18;
 
 
@@ -25,17 +24,100 @@ export const buildGame = (baseScenario, gameWidth) => {
     return ball;
   }
 
-  const buildBricks = () => {
+  const buildBricksFase1 = () => {
     const brickGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
 
     const initilPositionX = (0 - gameWidth / 2) + brickWidth + wallThickness / 2;
     const initilPositionY = (0 + gameWidth) - brickHeight;
 
+   const bricksAmount = ((gameWidth - wallThickness) / (brickWidth + 0.36));
+    const totalLines = 4;
+
+    let bricksMatrix = [];
+
+    for (let column = 0; column < bricksAmount; column++) {
+      let brickRow = [];
+
+      for (let line = 0; line < totalLines; line++) {
+        const brick = new THREE.Mesh(brickGeometry, phongBlueMaterial);
+
+        brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
+        brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
+
+        brickRow.push(brick);
+
+        baseScenario.add(brick);
+      }
+
+      bricksMatrix.push(brickRow);
+    }
+
+    return bricksMatrix;
+  }
+
+  const buildBricksFase2 = () => {
+    let bricksMatrix = [];
+    const bricks = [
+      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'B', 'B', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
+      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C']
+    ]
+    const brickGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
+
+    const initilPositionX = (0 - gameWidth / 2) + brickWidth + wallThickness / 2;
+    const initilPositionY = (0 + gameWidth) - brickHeight;
+
+
+    bricks.forEach( (lineLine, line) => {
+      let brickRow = []
+      lineLine.forEach( (brick, column) => {
+        
+        if (brick == 'C'){
+          brick = new THREE.Mesh(brickGeometry, phongGreyMaterial);
+        } else if (brick == 'B') {
+          brick = new THREE.Mesh(brickGeometry, phongBlueMaterial);
+        }
+
+        if (brick){
+          brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
+          brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
+  
+          baseScenario.add(brick);
+
+          brickRow.push(brick)
+        }
+    
+
+
+      })
+
+      bricksMatrix.push(brickRow);
+
+    })
+
+    return bricksMatrix;
+
+    //const initilPositionX = (0 - gameWidth / 2) + brickWidth + wallThickness / 2;
+    //const initilPositionY = (0 + gameWidth) - brickHeight;
+
     const bricksAmount = ((gameWidth - wallThickness) / (brickWidth + 0.36));
 
     const totalLines = 4;
 
-    let bricksMatrix = [];
+    totalBricks = bricksAmount * totalLines
+
+    //let bricksMatrix = [];
+    
 
     for (let column = 0; column < bricksAmount; column++) {
       let brickRow = [];
@@ -110,8 +192,18 @@ export const buildGame = (baseScenario, gameWidth) => {
 
   const wallsArray = buildWalls();
   const hitter = buildHitter();
-  const bricksMatrix = buildBricks();
   const ball = buildBall();
+
+  let bricksMatrix;
+
+  switch (fase) {
+    case 1:
+      bricksMatrix = buildBricksFase1();
+      break;
+    case 2:
+      bricksMatrix = buildBricksFase2();
+      break;
+  }
 
   return {
     hitter,
