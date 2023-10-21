@@ -1,15 +1,11 @@
 import * as THREE from "three";
 
-import {
-  initRenderer,
-  onWindowResize,
-  initDefaultBasicLight,
-} from "../libs/util/util.js";
-import { orthographicCameraInitialization } from "./Utils/OrthographicCamera/index.js";
+import { initRenderer, onWindowResize, initDefaultBasicLight } from "../libs/util/util.js";
+// import { orthographicCameraInitialization } from "./Utils/OrthographicCamera/index.js";
 import { perspectiveCameraInitialization } from "./Utils/PerspectiveCamera/index.js";
 import { lightInitialization } from "./Utils/Light/index.js";
-import { setupBackground } from "./setupBackground/index.js";
-import { buildGame } from "./buildGame/index.js";
+import { setupBackground } from './setupBackground/index.js';
+import { buildGame, buildBricks } from './buildGame/index.js';
 import { checkGame } from "./checkGame/index.js";
 import { onMouseMove } from "./hitterMovement/index.js";
 import { keyboardUpdate } from "./Utils/Keyboard/index.js";
@@ -21,6 +17,24 @@ import {
   floorColisionHandler,
 } from "./colisionHandler/index.js";
 
+let fase = 1;
+
+const changeFase = ((faseParam) => {
+  fase = faseParam;
+  resetFase(backgroundContent)
+  buildBricks(backgroundContent, fase, gameWidth);
+});
+
+const resetFase = ((baseScenario) => {
+  while (baseScenario.children.length > 0) {
+    const object = baseScenario.children[0];
+    baseScenario.remove(object);
+  }
+
+  window.dispatchEvent(mustInitialize);
+
+})
+
 const scene = new THREE.Scene();
 
 const renderer = initRenderer();
@@ -30,8 +44,10 @@ const canvas = renderer.domElement;
 const gameWidth = 14;
 const screenWidth = window.innerWidth;
 const screenHeight = window.innerHeight;
+let actualStage = 1;
 
 const mustInitialize = new Event("initialize");
+const changeStage = new Event("changeStage");
 
 window.addEventListener(
   "resize",
@@ -72,14 +88,24 @@ window.addEventListener(
   false
 );
 
-//const camera = orthographicCameraInitialization(screenWidth, screenHeight);
-const camera = perspectiveCameraInitialization(screenWidth, screenHeight);
-const [backgroundContainer, backgroundContent] = setupBackground(
-  screenWidth,
-  screenHeight,
-  gameWidth,
-  scene
+window.addEventListener(
+  "changeStage",
+  () => {
+    if (actualStage == 1) {
+      actualStage = 2;
+    } else {
+      actualStage = 1;
+    };
+
+    initializeGame();
+  },
+  false
 );
+
+// const camera = orthographicCameraInitialization(screenWidth, screenHeight);
+const camera = perspectiveCameraInitialization(screenWidth, screenHeight);
+
+const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
 
 lightInitialization(scene);
 
@@ -96,7 +122,7 @@ let ball,
   gameFinish;
 
 const initializeGame = () => {
-  let components = buildGame(backgroundContent, gameWidth);
+  let components = buildGame(backgroundContent, gameWidth, actualStage);
 
   ball = components.ball;
   wallsArray = components.wallsArray;
@@ -127,7 +153,8 @@ const render = () => {
     gameRunning,
     gameStart,
     backgroundContent,
-    mustInitialize
+    mustInitialize,
+    changeStage
   ));
   ({ gameRunning, gameStart, gameFinish } = checkGame(
     bricksMatrix,
