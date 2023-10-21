@@ -4,14 +4,31 @@ import { initRenderer, onWindowResize, initDefaultBasicLight } from "../libs/uti
 // import { orthographicCameraInitialization } from "./Utils/OrthographicCamera/index.js";
 import { perspectiveCameraInitialization } from "./Utils/PerspectiveCamera/index.js";
 import { setupBackground } from './setupBackground/index.js'
-import { buildGame } from './buildGame/index.js'
+import { buildGame, buildBricks } from './buildGame/index.js'
 import { checkGame } from "./checkGame/index.js";
 import { onMouseMove } from "./hitterMovement/index.js";
 import { keyboardUpdate } from "./Utils/Keyboard/index.js";
 import { ballMovementHandler } from "./ballHandler/index.js";
 import { wallColisionHandler, brickColisionHandler, hitterColisionHandler, floorColisionHandler } from "./colisionHandler/index.js";
 
-let fase = 2;
+let fase = 1;
+
+const changeFase = ( ( faseParam ) => {
+    fase = faseParam;
+    resetFase(backgroundContent)
+    buildBricks(backgroundContent, fase, gameWidth);
+});
+
+const resetFase = ( (baseScenario) => {
+    while (baseScenario.children.length > 0) {
+        const object = baseScenario.children[0];
+        baseScenario.remove(object);
+    }
+
+    window.dispatchEvent(mustInitialize);
+
+}) 
+
 const scene = new THREE.Scene();
 
 const renderer = initRenderer();
@@ -100,7 +117,7 @@ const colisionTimer = () => {
 const render = () => {
     requestAnimationFrame(render);
     colisionTimer();
-    ({ gameRunning } = keyboardUpdate(canvas, gameRunning, gameStart, backgroundContent, mustInitialize));
+    ({ gameRunning } = keyboardUpdate(canvas, gameRunning, gameStart, backgroundContent, mustInitialize, changeFase));
     ({ gameRunning, gameStart, gameFinish } = checkGame(bricksMatrix, gameRunning, gameStart, gameFinish));
 
     ({ ballPosition } = ballMovementHandler(ball, ballPosition, ballVelocity, gameRunning, gameStart, hitter, gameFinish));

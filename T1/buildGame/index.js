@@ -1,14 +1,122 @@
 import * as THREE from "three";
 
+const lambertRedMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+const lambertGreyMaterial = new THREE.MeshLambertMaterial({ color: 0x999999 });
+const lambertBlueMaterial = new THREE.MeshLambertMaterial({ color: 0x0000ff });
+const lambertOrangeMaterial = new THREE.MeshLambertMaterial({ color: 0xffa500 });
+const lambertPinkMaterial = new THREE.MeshLambertMaterial({ color: 0xff00f7 });
+const lambertGreenMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+
+const wallThickness = 0.5;
+const brickHeight = 0.8;
+const brickMargin = 0.12;
+
+export const buildBricks = (baseScenario, fase, gameWidth ) => {
+  let bricks;
+
+  switch (fase) {
+    case 1:
+      bricks = [
+        ['C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'],
+        ['R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R', 'R'],
+        ['B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B'],
+        ['O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O'],
+        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+        ['G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G'],
+      ]
+      break;
+    case 2:
+       bricks = [
+        ['C', 'O', 'G', 'P', '', 'O', 'G', 'B', 'C'],
+        ['B', 'G', 'O', 'R', '', 'G', 'O', 'C', 'B'],
+        ['G', 'P', 'R', 'O', '', 'B', 'C', 'O', 'G'],
+        ['O', 'R', 'P', 'G', '', 'C', 'B', 'G', 'O'],
+        ['R', 'O', 'G', 'B', '', 'O', 'G', 'P', 'R'],
+        ['P', 'G', 'O', 'C', '', 'G', 'O', 'R', 'P'],
+        ['G', 'B', 'C', 'O', '', 'P', 'R', 'O', 'G'],
+        ['O', 'C', 'B', 'G', '', 'R', 'P', 'G', 'O'],
+        ['C', 'O', 'G', 'P', '', 'O', 'G', 'B', 'C'],
+        ['B', 'G', 'O', 'R', '', 'G', 'B', 'C', 'B'],
+        ['G', 'P', 'R', 'O', '', 'B', 'C', 'O', 'G'],
+        ['O', 'R', 'P', 'G', '', 'C', 'B', 'G', 'O'],
+        ['R', 'O', 'G', 'B', '', 'O', 'G', 'P', 'R'],
+        ['P', 'G', 'O', 'C', '', 'G', 'O', 'R', 'P']
+      ]
+      break;
+  }
+
+  let bricksMatrix = [];
+
+  let biggestLine = 0;  
+  bricks.forEach( line => biggestLine = biggestLine > line.length ? biggestLine : line.length);
+
+  let brickWidth = ((gameWidth)- (2 * wallThickness))  / (biggestLine + (biggestLine * brickMargin)); 
+
+  const brickGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
+
+  const initilPositionX = (0 - gameWidth / 2) + brickWidth + wallThickness / 2;
+  const initilPositionY = (0 + gameWidth) - brickHeight;
+
+
+  bricks.forEach( (lineLine, line) => {
+    let brickRow = []
+    lineLine.forEach( (brick, column) => {
+      
+      let material;
+
+      switch (brick){
+        case 'C':
+          material = lambertGreyMaterial;
+          break;
+        case 'R':
+          material = lambertRedMaterial;
+          break;
+        case 'B':
+          material = lambertBlueMaterial;
+          break;
+        case 'O':
+          material = lambertOrangeMaterial;
+          break;
+        case 'P':
+          material = lambertPinkMaterial;
+          break;
+        case 'G':
+          material = lambertGreenMaterial;
+          break;
+      }
+
+      brick = new THREE.Mesh(brickGeometry, material);
+
+      if (brick){
+        brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
+        brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
+
+        baseScenario.add(brick);
+
+        brickRow.push(brick)
+      }
+  
+
+
+    })
+
+    bricksMatrix.push(brickRow);
+
+  })
+
+  return bricksMatrix;
+}
+
+
 
 export const buildGame = (baseScenario, gameWidth, fase) => {
-
+  
   const basicBlueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+
   const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
   const phongGreyMaterial = new THREE.MeshPhongMaterial({ color: 0xaaaaaa });
-  const wallThickness = 0.5;
-  const brickHeight = 0.8;
-  const brickMargin = 0.18;
+
+
 
 
   const buildBall = () => {
@@ -55,90 +163,7 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
     return bricksMatrix;
   }
 
-  const buildBricksFase2 = () => {
-    let bricksMatrix = [];
-    const bricks = [
-      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'B', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'B', 'B', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C'],
-      ['C', 'C', 'C', 'C', '', 'C', 'C', 'C', 'C']
-    ]
-    const brickGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
-
-    const initilPositionX = (0 - gameWidth / 2) + brickWidth + wallThickness / 2;
-    const initilPositionY = (0 + gameWidth) - brickHeight;
-
-
-    bricks.forEach( (lineLine, line) => {
-      let brickRow = []
-      lineLine.forEach( (brick, column) => {
-        
-        if (brick == 'C'){
-          brick = new THREE.Mesh(brickGeometry, phongGreyMaterial);
-        } else if (brick == 'B') {
-          brick = new THREE.Mesh(brickGeometry, phongBlueMaterial);
-        }
-
-        if (brick){
-          brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
-          brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
   
-          baseScenario.add(brick);
-
-          brickRow.push(brick)
-        }
-    
-
-
-      })
-
-      bricksMatrix.push(brickRow);
-
-    })
-
-    return bricksMatrix;
-
-    //const initilPositionX = (0 - gameWidth / 2) + brickWidth + wallThickness / 2;
-    //const initilPositionY = (0 + gameWidth) - brickHeight;
-
-    const bricksAmount = ((gameWidth - wallThickness) / (brickWidth + 0.36));
-
-    const totalLines = 4;
-
-    totalBricks = bricksAmount * totalLines
-
-    //let bricksMatrix = [];
-    
-
-    for (let column = 0; column < bricksAmount; column++) {
-      let brickRow = [];
-
-      for (let line = 0; line < totalLines; line++) {
-        const brick = new THREE.Mesh(brickGeometry, phongBlueMaterial);
-
-        brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
-        brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
-
-        brickRow.push(brick);
-
-        baseScenario.add(brick);
-      }
-
-      bricksMatrix.push(brickRow);
-    }
-
-    return bricksMatrix;
-  }
-
   const buildWalls = () => {
 
     const verticalWallGeometry = new THREE.BoxGeometry(wallThickness, 2 * gameWidth, 1);
@@ -194,16 +219,9 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
   const hitter = buildHitter();
   const ball = buildBall();
 
-  let bricksMatrix;
+  const bricksMatrix = buildBricks(baseScenario, fase, gameWidth);
 
-  switch (fase) {
-    case 1:
-      bricksMatrix = buildBricksFase1();
-      break;
-    case 2:
-      bricksMatrix = buildBricksFase2();
-      break;
-  }
+
 
   return {
     hitter,

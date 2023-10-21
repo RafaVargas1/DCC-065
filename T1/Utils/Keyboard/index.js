@@ -33,7 +33,7 @@ function reset(baseScenario) {
 
 var keyboard = new KeyboardState();
 
-export const keyboardUpdate = (canvas, gameRunning, gameStart, baseScenario, mustInitialize) => {
+export const keyboardUpdate = (canvas, gameRunning, gameStart, baseScenario, mustInitialize, setFase) => {
     keyboard.update();
 
     if (keyboard.down("enter")) {
@@ -48,6 +48,10 @@ export const keyboardUpdate = (canvas, gameRunning, gameStart, baseScenario, mus
         reset(baseScenario);        
         window.dispatchEvent(mustInitialize);
         gameRunning = false;
+    }
+
+    if (keyboard.down("G")){
+        setFase(2)
     }
 
     return { gameRunning };
