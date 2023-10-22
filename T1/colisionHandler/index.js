@@ -126,39 +126,11 @@ export const brickColisionHandler = (
 
     bricksMatrix.forEach((brickRow) => {
       brickRow.forEach((brick) => {
-        // const brickX = brick.position.x;
-        // const brickY = brick.position.y;
-
-        // const points = [
-        //   new THREE.Vector3(brickX - 0.6, brickY + 0.4, 0.0),
-        //   new THREE.Vector3(brickX + 0.6, brickY + 0.4, 0.0),
-        //   new THREE.Vector3(brickX - 0.6, brickY - 0.4, 0.0),
-        //   new THREE.Vector3(brickX + 0.6, brickY - 0.4, 0.0),
-        // ];
-
-        // const vLeft = [points[0], points[2]];
-
-        // const vRight = [points[1], points[3]];
-
-        // const hUp = [points[0], points[1]];
-
-        // const hDown = [points[2], points[3]];
-
-        // let boxVerticalLeft = new THREE.Box3().setFromPoints(vLeft);
-        // let boxVerticalRight = new THREE.Box3().setFromPoints(vRight);
-        // let boxHorizontalUp = new THREE.Box3().setFromPoints(hUp);
-        // let boxHorizontalDown = new THREE.Box3().setFromPoints(hDown);
-
         let brickBox = new THREE.Box3().setFromObject(brick);
 
         let mustBroke = false;
         const sideWidth = brick.geometry.parameters.width;
         const sideHeight = brick.geometry.parameters.height;
-
-        // const upHit = ball.position.y > brickY;
-        // const downHit = ball.position.y < brickY;
-        // const leftHit = ball.position.x < brickX;
-        // const rightHit = ball.position.x > brickX;
 
         const isTop =
           ball.position.y - ballRadius < brick.position.y + sideHeight / 2;
@@ -225,31 +197,6 @@ export const brickColisionHandler = (
           right &&
           ball.position.x > brick.position.x + sideWidth / 2;
 
-        // const topHit =
-        //   isLeft &&
-        //   isRight &&
-        //   ball.position.y - ballRadius <= brick.position.y + sideHeight / 2 &&
-        //   ball.position.y - ballRadius > brick.position.y - sideHeight / 2 &&
-        //   ball.position.y > brick.position.y + sideHeight / 2;
-        // const bottomHit =
-        //   isLeft &&
-        //   isRight &&
-        //   ball.position.y + ballRadius >= brick.position.y - sideHeight / 2 &&
-        //   ball.position.y + ballRadius < brick.position.y + sideHeight / 2 &&
-        //   ball.position.y < brick.position.y - sideHeight / 2;
-        // const leftHit =
-        //   isTop &&
-        //   isBottom &&
-        //   ball.position.x + ballRadius >= brick.position.x - sideWidth / 2 &&
-        //   ball.position.x + ballRadius < brick.position.x + sideWidth / 2 &&
-        //   ball.position.x < brick.position.x - sideWidth / 2;
-        // const rightHit =
-        //   isTop &&
-        //   isBottom &&
-        //   ball.position.x - ballRadius <= brick.position.x + sideWidth / 2 &&
-        //   ball.position.x - ballRadius > brick.position.x - sideWidth / 2 &&
-        //   ball.position.x > brick.position.x + sideWidth / 2;
-
         if (
           brickBox.intersectsSphere(sphere) &&
           brick.name != "broken" &&
@@ -290,13 +237,7 @@ export const brickColisionHandler = (
           baseScenario.remove(brick);
           brick.name = "broken";
         }
-
-        //if (brick.name == "hitted") {
-        //    baseScenario.remove(brick);
-        //    brick.name = "broken";
-        //} else {
-        //    brick.name = "hitted";
-        //}
+        
       });
     });
   };
@@ -307,47 +248,42 @@ export const brickColisionHandler = (
 };
 
 export const hitterColisionHandler = (ball, ballVelocity, hitter) => {
-  const inclineVector = (vector, angle) => {
-    const module = vector.length();
+  const ballRadius = ball.geometry.parameters.radius;
+  const hitterRadius = (0.225 * 14) / 2;
 
-    const newX = module * Math.cos(angle);
-    const newY = module * Math.sin(angle);
+  const calculateHitterReflection = (hitterSphere, ballSphere) => {
+    const collisionPoint = checkCollision(hitterSphere, ballSphere);
+    
+    const normal = new THREE.Vector3().copy(collisionPoint).normalize();
+    
+    const incidentVector = ballVelocity;
+    
+    const reflectionVector = incidentVector
+      .clone()
+      .sub(normal.clone().multiplyScalar(2 * incidentVector.dot(normal)));
 
-    const newVector = new THREE.Vector3(newX, newY, 0);
-
-    return newVector;
+    ballVelocity.x = reflectionVector.x;
+    ballVelocity.y = reflectionVector.y;
+    ballVelocity.z = incidentVector.z;
   };
 
-  const calculateHitterReflection = (hitterIndex) => {
-    let reflectionAngle;
+  const checkCollision = (hitterSphere, ballSphere) => {
+    const distance = hitterSphere.center.distanceTo(ballSphere.center);
 
-    reflectionAngle = ((5 - hitterIndex) * Math.PI) / 6;
+    if (distance < hitterRadius + ballRadius) {
+      const direction = new THREE.Vector3().subVectors(ballSphere.center, hitterSphere.center).normalize();
+      const collisionPoint = new THREE.Vector3().copy(hitterSphere.center).addScaledVector(direction, hitterRadius);
 
-    const reflectionDirection = inclineVector(
-      new THREE.Vector3(0, 1, 0),
-      reflectionAngle
-    );
-
-    ballVelocity = ballVelocity.reflect(reflectionDirection);
-
-    ballVelocity.y = Math.abs(ballVelocity.y);
+      return collisionPoint;
+    }
   };
 
   const detectHitterColision = () => {
-    const sphere = new THREE.Sphere(ball.position, ball.scale.x);
-
-    hitter.updateMatrixWorld();
-
-    for (let i = 0; i < hitter.children.length; i++) {
-      hitter.updateMatrixWorld();
-      hitter.children[i].updateMatrixWorld();
-
-      const boxCollided = new THREE.Box3().setFromObject(hitter.children[i]);
-
-      if (boxCollided.intersectsSphere(sphere)) {
-        calculateHitterReflection(i);
-        break;
-      }
+    const sphere = new THREE.Sphere(ball.position, ballRadius);
+    const hitterBox = new THREE.Sphere(hitter.position, hitterRadius);
+    
+    if (hitterBox.intersectsSphere(sphere)) {
+      calculateHitterReflection(hitterBox, sphere);
     }
   };
 

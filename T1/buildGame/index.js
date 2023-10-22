@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { CSG } from "../../libs/other/CSGMesh.js";
 
 const lambertRedMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
 const lambertGreyMaterial = new THREE.MeshLambertMaterial({ color: 0x999999 });
@@ -57,12 +58,12 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
   const initilPositionX = (0 - gameWidth / 2) + brickWidth + wallThickness / 2;
   const initilPositionY = (0 + gameWidth) - brickHeight;
 
-
   bricks.forEach((lineLine, line) => {
     let brickRow = []
     lineLine.forEach((brick, column) => {
 
       let material;
+      let name = brick;
 
       switch (brick) {
         case 'C':
@@ -90,24 +91,23 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
       if (brick) {
         brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
         brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
+        brick.position.z = 0.8;
+
+        brick.castShadow = true;
 
         baseScenario.add(brick);
 
-        brickRow.push(brick)
+        brickRow.push(brick);
+
+        brick.name = name;
       }
-
-
-
     })
 
     bricksMatrix.push(brickRow);
-
   })
 
   return bricksMatrix;
 }
-
-
 
 export const buildGame = (baseScenario, gameWidth, fase) => {
 
@@ -121,7 +121,7 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
 
     const ball = new THREE.Mesh(ballGeometry, phongBlueMaterial);
 
-    ball.translateY((1.4 * gameWidth) / -2);
+    ball.translateY((1.525 * gameWidth) / -2);
 
     ball.position.z = 20;
 
@@ -131,42 +131,6 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
 
     return ball;
   };
-
-  const buildBricksFase1 = () => {
-    const brickGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
-
-    const initilPositionX = 0 - gameWidth / 2 + brickWidth + wallThickness / 2;
-    const initilPositionY = 0 + gameWidth - brickHeight;
-
-    const bricksAmount = ((gameWidth - wallThickness) / (brickWidth + 0.36));
-    const totalLines = 4;
-
-    let bricksMatrix = [];
-
-    for (let column = 0; column < bricksAmount; column++) {
-      let brickRow = [];
-
-      for (let line = 0; line < totalLines; line++) {
-        const brick = new THREE.Mesh(brickGeometry, lambertBlueMaterial);
-
-        brick.position.x =
-          initilPositionX + column * (brickWidth + brickMargin);
-        brick.position.y = initilPositionY - line * (brickHeight + brickMargin);
-        brick.position.z = 0.6;
-
-        brickRow.push(brick);
-
-        brick.castShadow = true;
-
-        baseScenario.add(brick);
-      }
-
-      bricksMatrix.push(brickRow);
-    }
-
-    return bricksMatrix;
-  };
-
 
   const buildWalls = () => {
     const verticalWallGeometry = new THREE.BoxGeometry(
@@ -199,34 +163,74 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
   };
 
   const buildHitter = () => {
-    const hitterSize = 0.225 * gameWidth;
+    const hitterRadius = (0.225 * gameWidth) / 2;
 
-    const hitterGeometry = new THREE.BoxGeometry(0, 0, 0);
-    const hitter = new THREE.Mesh(hitterGeometry, lambertBlueMaterial);
+    const cylinderGeometry = new THREE.CylinderGeometry(hitterRadius, hitterRadius, brickHeight);
+    const boxGeometry = new THREE.BoxGeometry(3, 10, 10);
 
-    const hitterPartsGeometry = new THREE.BoxGeometry(hitterSize / 5, 0.5, 1);
-    let hitterParts;
+    const cylinder = new THREE.Mesh(cylinderGeometry, lambertBlueMaterial);
+    const rectangle = new THREE.Mesh(boxGeometry, lambertBlueMaterial);
 
-    let aux = -2;
-    for (let i = 0; i < 5; i++) {
-      hitterParts = new THREE.Mesh(hitterPartsGeometry, lambertBlueMaterial);
+    cylinder.position.copy(new THREE.Vector3(0, 0, 0));
+    rectangle.position.copy(new THREE.Vector3(0.5, 0, 0));
 
-      hitter.add(hitterParts);
+    cylinder.matrixAutoUpdate = false;
+    cylinder.updateMatrix();
+    let cylinderCSG = CSG.fromMesh(cylinder);
 
-      hitterParts.translateX((hitterSize / 5) * aux);
-      aux++;
-    }
+    rectangle.matrixAutoUpdate = false;
+    rectangle.updateMatrix();
+    let rectangleCSG = CSG.fromMesh(rectangle);
 
-    hitter.translateY((1.5 * gameWidth) / -2);
+    let hitterCSG = cylinderCSG.subtract(rectangleCSG);
+
+    let hitter = CSG.toMesh(hitterCSG, new THREE.Matrix4());
+
+    hitter.material = lambertBlueMaterial;
+
+    hitter.position.set(0, 0, 0);
+    hitter.translateY((1.775 * gameWidth) / -2);
+    hitter.translateZ(0.8);
+
+    hitter.rotateY(THREE.MathUtils.degToRad(90));
+    hitter.rotateZ(THREE.MathUtils.degToRad(-90));
 
     hitter.name = "hitter";
+    hitter.castShadow = true;
 
     baseScenario.add(hitter);
 
-    hitter.castShadow = true;
-
     return hitter;
-  };
+  }
+  //const buildHitter = () => {
+  //  const hitterSize = 0.225 * gameWidth;
+  //
+  //  const hitterGeometry = new THREE.BoxGeometry(0, 0, 0);
+  //  const hitter = new THREE.Mesh(hitterGeometry, lambertBlueMaterial);
+  //
+  //  const hitterPartsGeometry = new THREE.BoxGeometry(hitterSize / 5, 0.5, 1);
+  //  let hitterParts;
+  //
+  //  let aux = -2;
+  //  for (let i = 0; i < 5; i++) {
+  //    hitterParts = new THREE.Mesh(hitterPartsGeometry, lambertBlueMaterial);
+  //
+  //    hitter.add(hitterParts);
+  //
+  //    hitterParts.translateX((hitterSize / 5) * aux);
+  //    aux++;
+  //  }
+  //
+  //  hitter.translateY((1.5 * gameWidth) / -2);
+  //
+  //  hitter.name = "hitter";
+  //
+  //  baseScenario.add(hitter);
+  //
+  //  hitter.castShadow = true;
+  //
+  //  return hitter;
+  //};
 
   const wallsArray = buildWalls();
   const hitter = buildHitter();

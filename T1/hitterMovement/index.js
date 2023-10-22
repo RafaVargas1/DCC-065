@@ -24,7 +24,7 @@ export const onMouseMove = (
     const hitterMovement = mouse.x * (14 - 1.5);
 
     hitter.position.lerp(
-      new THREE.Vector3(hitterMovement, (1.5 * 14) / -2, 1),
+      new THREE.Vector3(hitterMovement, (1.775 * 14) / -2, 0.8),
       1
     );
   }

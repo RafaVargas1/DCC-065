@@ -1,11 +1,11 @@
 import * as THREE from "three";
 
-import { initRenderer, onWindowResize, initDefaultBasicLight } from "../libs/util/util.js";
+import { initRenderer, onWindowResize } from "../libs/util/util.js";
 // import { orthographicCameraInitialization } from "./Utils/OrthographicCamera/index.js";
 import { perspectiveCameraInitialization } from "./Utils/PerspectiveCamera/index.js";
 import { lightInitialization } from "./Utils/Light/index.js";
 import { setupBackground } from './setupBackground/index.js';
-import { buildGame, buildBricks } from './buildGame/index.js';
+import { buildGame } from './buildGame/index.js';
 import { checkGame } from "./checkGame/index.js";
 import { onMouseMove } from "./hitterMovement/index.js";
 import { keyboardUpdate } from "./Utils/Keyboard/index.js";
@@ -16,24 +16,6 @@ import {
   hitterColisionHandler,
   floorColisionHandler,
 } from "./colisionHandler/index.js";
-
-let fase = 1;
-
-const changeFase = ((faseParam) => {
-  fase = faseParam;
-  resetFase(backgroundContent)
-  buildBricks(backgroundContent, fase, gameWidth);
-});
-
-const resetFase = ((baseScenario) => {
-  while (baseScenario.children.length > 0) {
-    const object = baseScenario.children[0];
-    baseScenario.remove(object);
-  }
-
-  window.dispatchEvent(mustInitialize);
-
-})
 
 const scene = new THREE.Scene();
 
@@ -105,11 +87,9 @@ window.addEventListener(
 // const camera = orthographicCameraInitialization(screenWidth, screenHeight);
 const camera = perspectiveCameraInitialization(screenWidth, screenHeight);
 
-const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
+const [backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
 
 lightInitialization(scene);
-
-//initDefaultBasicLight(scene);
 
 let ball,
   wallsArray,
