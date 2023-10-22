@@ -20,9 +20,10 @@ import {
 
 let fase = 1;
 
-const startVelocity = .25;
-let resultantVelocity = .25;
-const time = 15 * 1000;
+const startVelocity = 0.125;
+const time = 15;
+let resultantVelocity = .125;
+const multiplyFactor = Math.pow(2, 1/time);
 let elapsedTime = 0;
 
 let speedInfoBox = null;
@@ -173,6 +174,7 @@ const render = () => {
     ballVelocity,
     time,
     elapsedTime,
+    multiplyFactor,
     startVelocity,
     gameRunning,
     gameStart,

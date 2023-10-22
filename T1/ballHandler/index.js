@@ -1,9 +1,13 @@
 import * as THREE from "three";
 
-export const ballMovementHandler = ( ball, ballPosition, ballVelocity, time, elapsedTime, startVelocity, gameRunning, gameStart, hitter, gameFinish ) => {
+export const ballMovementHandler = ( ball, ballPosition, ballVelocity, time, elapsedTime, multiplyFactor, startVelocity, gameRunning, gameStart, hitter, gameFinish ) => {
     
     const initialPositioning = () => {
         ball.position.copy(new THREE.Vector3(hitter.position.x, ballPosition.y, 0.6));
+    }
+
+    const calculateResultantVector = (vector) => {
+        return Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2))
     }
 
     const defaultMovement = () => {
@@ -14,29 +18,40 @@ export const ballMovementHandler = ( ball, ballPosition, ballVelocity, time, ela
     }
 
     const accelerateMovement = () => {
-        // if ()
-        const targetVelocity = 2 * startVelocity;
-        const acceleration = (targetVelocity - startVelocity) / 15; 
+    
+        if (!gameRunning)
+            return;
+        
+        if ( 
+            (elapsedTime + 1/60) > Math.ceil(elapsedTime) && 
+            elapsedTime <= time && 
+            calculateResultantVector(ballVelocity) < (2 * startVelocity) 
+        ) {
+            ballVelocity.multiplyScalar(multiplyFactor)
 
-        ballVelocity.y += acceleration * (time - elapsedTime);
-
-        if (gameRunning) {
             ballPosition.add(ballVelocity);
             ball.position.copy(ballPosition);
+
+        } else {
+            ballPosition.add(ballVelocity);
+            ball.position.copy(ballPosition);
+        
         }
 
-        elapsedTime += 1/75;
+     
+
+        elapsedTime += 1/60;
     }
 
 
     if (!gameStart && !gameFinish) {
         initialPositioning();
     } else {
-        // if (elapsedTime < time){
-        //     accelerateMovement();
-        // } else {
+        if (elapsedTime < time){
+            accelerateMovement();
+        } else {
             defaultMovement();
-        // }
+        }
     }
 
     return { ballPosition, elapsedTime, ballVelocity }
