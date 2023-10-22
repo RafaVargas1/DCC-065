@@ -85,7 +85,12 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
           break;
       }
 
+    
       brick = new THREE.Mesh(brickGeometry, material);
+
+      if (material === lambertGreyMaterial)
+        brick.specialType = true;
+
 
       if (brick) {
         brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));

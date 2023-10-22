@@ -1,5 +1,7 @@
 import * as THREE from "three";
 
+const lambertNewGreyMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
 function changeDirection(vector, inclination, azimuth) {
   const radius = vector.length(); // Obtém o comprimento do vetor
 
@@ -287,16 +289,21 @@ export const brickColisionHandler = (
         }
 
         if (mustBroke) {
-          baseScenario.remove(brick);
-          brick.name = "broken";
+          if (brick.specialType){
+            if (brick.name == "hitted") {
+              baseScenario.remove(brick);
+              brick.name = "broken";
+            } else {
+                brick.name = "hitted";
+                brick.material =  lambertNewGreyMaterial;
+            }
+            
+          } else {
+            baseScenario.remove(brick);
+            brick.name = "broken";
+          }         
         }
-
-        //if (brick.name == "hitted") {
-        //    baseScenario.remove(brick);
-        //    brick.name = "broken";
-        //} else {
-        //    brick.name = "hitted";
-        //}
+     
       });
     });
   };
