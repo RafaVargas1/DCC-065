@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { initRenderer, onWindowResize, initDefaultBasicLight } from "../libs/util/util.js";
+import { initRenderer, onWindowResize, initDefaultBasicLight, InfoBox } from "../libs/util/util.js";
 // import { orthographicCameraInitialization } from "./Utils/OrthographicCamera/index.js";
 import { perspectiveCameraInitialization } from "./Utils/PerspectiveCamera/index.js";
 import { lightInitialization } from "./Utils/Light/index.js";
@@ -17,23 +17,26 @@ import {
   floorColisionHandler,
 } from "./colisionHandler/index.js";
 
+
 let fase = 1;
 
-const changeFase = ((faseParam) => {
-  fase = faseParam;
-  resetFase(backgroundContent)
-  buildBricks(backgroundContent, fase, gameWidth);
-});
+const startVelocity = .25;
+let resultantVelocity = .25;
+const time = 15 * 1000;
+let elapsedTime = 0;
 
-const resetFase = ((baseScenario) => {
-  while (baseScenario.children.length > 0) {
-    const object = baseScenario.children[0];
-    baseScenario.remove(object);
-  }
+let speedInfoBox = null;
 
-  window.dispatchEvent(mustInitialize);
+const handleTextBallVelocity = () => {    
+  if (speedInfoBox)
+    speedInfoBox.infoBox.remove()
 
-})
+  speedInfoBox = new InfoBox();
+
+  const textBallVelocity = "Velocidade " + resultantVelocity;
+  speedInfoBox.add(textBallVelocity)
+  speedInfoBox.show();
+}
 
 const scene = new THREE.Scene();
 
@@ -115,8 +118,8 @@ let ball,
   wallsArray,
   bricksMatrix,
   hitter,
-  ballPosition,
   ballVelocity,
+  ballPosition,
   gameStart,
   gameRunning,
   gameFinish;
@@ -134,6 +137,7 @@ const initializeGame = () => {
   gameStart = false;
   gameRunning = false;
   gameFinish = false;
+
 };
 
 initializeGame();
@@ -142,7 +146,7 @@ const onMouseClick = () => {
   if (!gameRunning && !gameStart && !gameFinish) {
     gameStart = true;
     gameRunning = true;
-    ballVelocity = new THREE.Vector3(0, 0.25, 0);
+    ballVelocity = new THREE.Vector3(0, startVelocity, 0);
   }
 };
 
@@ -163,10 +167,13 @@ const render = () => {
     gameFinish
   ));
 
-  ({ ballPosition } = ballMovementHandler(
+  ({ ballPosition, elapsedTime, ballVelocity } = ballMovementHandler(
     ball,
     ballPosition,
     ballVelocity,
+    time,
+    elapsedTime,
+    startVelocity,
     gameRunning,
     gameStart,
     hitter,
@@ -189,6 +196,9 @@ const render = () => {
     gameStart
   ));
 
+    handleTextBallVelocity();
+
+  resultantVelocity = Math.sqrt(Math.pow(ballVelocity.y,2) + Math.pow(ballVelocity.x, 2)).toFixed(3)
   renderer.render(scene, camera);
 };
 
