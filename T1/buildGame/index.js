@@ -93,7 +93,7 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
         brick.specialType = true;
 
 
-      if (brick) {
+      if (brick && material) {
         brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
         brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
         brick.position.z = 0.8;
