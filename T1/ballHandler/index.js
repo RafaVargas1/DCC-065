@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export const ballMovementHandler = ( ball, ballPosition, ballVelocity, time, elapsedTime, multiplyFactor, startVelocity, gameRunning, gameStart, hitter, gameFinish ) => {
+export const ballMovementHandler = ( ball, ballPosition, ballVelocity, time, elapsedTime, multiplyFactor, startVelocity, timesIncreased, gameRunning, gameStart, hitter, gameFinish ) => {
     
     const initialPositioning = () => {
         ball.position.copy(new THREE.Vector3(hitter.position.x, ballPosition.y, 0.6));
@@ -18,29 +18,41 @@ export const ballMovementHandler = ( ball, ballPosition, ballVelocity, time, ela
     }
 
     const accelerateMovement = () => {
+
+        const timesInASecond = 4;
     
         if (!gameRunning)
             return;
+
+       
+        const integerPart = Math.trunc(elapsedTime + 1/75);
+        const decimalPart = elapsedTime - integerPart; 
+
         
+        if (elapsedTime + 1/75 > Math.ceil(elapsedTime)) {
+            timesIncreased = 0;
+        }
+
         if ( 
-            (elapsedTime + 1/60) > Math.ceil(elapsedTime) && 
-            elapsedTime <= time && 
-            calculateResultantVector(ballVelocity) < (2 * startVelocity) 
+            ((decimalPart) > (1/(timesInASecond + 1) * timesIncreased)) && 
+            (elapsedTime <= time) && 
+            (calculateResultantVector(ballVelocity) < (2 * startVelocity)) 
         ) {
+            // console.log("entrou")
             ballVelocity.multiplyScalar(multiplyFactor)
 
             ballPosition.add(ballVelocity);
             ball.position.copy(ballPosition);
-
+   
+            timesIncreased++; 
         } else {
             ballPosition.add(ballVelocity);
-            ball.position.copy(ballPosition);
-        
+            ball.position.copy(ballPosition);        
         }
 
      
 
-        elapsedTime += 1/60;
+        elapsedTime += 1/75;
     }
 
 
@@ -54,5 +66,5 @@ export const ballMovementHandler = ( ball, ballPosition, ballVelocity, time, ela
         }
     }
 
-    return { ballPosition, elapsedTime, ballVelocity }
+    return { ballPosition, elapsedTime, ballVelocity, timesIncreased }
 }

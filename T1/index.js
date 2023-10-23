@@ -23,8 +23,9 @@ let fase = 1;
 const startVelocity = 0.125;
 const time = 15;
 let resultantVelocity = .125;
-const multiplyFactor = Math.pow(2, 1/time);
+const multiplyFactor = Math.pow(2, 1/(4*time));
 let elapsedTime = 0;
+let timesIncreased = 1;
 
 let speedInfoBox = null;
 
@@ -136,13 +137,13 @@ const initializeGame = () => {
   gameStart = false;
   gameRunning = false;
   gameFinish = false;
-
 };
 
 initializeGame();
 
 const onMouseClick = () => {
   if (!gameRunning && !gameStart && !gameFinish) {
+    elapsedTime = 0;
     gameStart = true;
     gameRunning = true;
     ballVelocity = new THREE.Vector3(0, startVelocity, 0);
@@ -166,7 +167,7 @@ const render = () => {
     gameFinish
   ));
 
-  ({ ballPosition, elapsedTime, ballVelocity } = ballMovementHandler(
+  ({ ballPosition, elapsedTime, ballVelocity, timesIncreased } = ballMovementHandler(
     ball,
     ballPosition,
     ballVelocity,
@@ -174,6 +175,7 @@ const render = () => {
     elapsedTime,
     multiplyFactor,
     startVelocity,
+    timesIncreased,
     gameRunning,
     gameStart,
     hitter,
@@ -196,7 +198,7 @@ const render = () => {
     gameStart
   ));
 
-    handleTextBallVelocity();
+  handleTextBallVelocity();
 
   resultantVelocity = Math.sqrt(Math.pow(ballVelocity.y,2) + Math.pow(ballVelocity.x, 2)).toFixed(3)
   renderer.render(scene, camera);
