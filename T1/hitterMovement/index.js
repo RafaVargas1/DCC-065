@@ -21,7 +21,13 @@ export const onMouseMove = (
   const intersects = raycaster.intersectObject(baseScenario);
 
   if (intersects.length > 0 && (gameRunning || !gameStart) && !gameFinish) {
-    const hitterMovement = mouse.x * (14 - 1.5);
+    let hitterMovement = intersects[0].point.x;
+
+    if (hitterMovement > 5) {
+      hitterMovement = 5;
+    } else if (hitterMovement < -5) {
+      hitterMovement = -5;
+    }
 
     hitter.position.lerp(
       new THREE.Vector3(hitterMovement, (1.775 * 14) / -2, 0.8),

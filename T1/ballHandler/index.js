@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-export const ballMovementHandler = ( ball, ballPosition, ballVelocity, gameRunning, gameStart, hitter, gameFinish ) => {
-    
+export const ballMovementHandler = (ball, ballPosition, ballVelocity, gameRunning, gameStart, hitter, gameFinish) => {
+
     const initialPositioning = () => {
         ball.position.copy(new THREE.Vector3(hitter.position.x, ballPosition.y, 0.6));
     }
@@ -20,4 +20,19 @@ export const ballMovementHandler = ( ball, ballPosition, ballVelocity, gameRunni
     }
 
     return { ballPosition }
+}
+
+export const aditionalBallMovementHandler = (aditionalBall, aditionalBallPosition, aditionalBallVelocity, gameRunning) => {
+    const aditionalMovement = () => {
+        if (gameRunning) {
+            aditionalBallPosition.add(aditionalBallVelocity);
+            aditionalBall.position.copy(aditionalBallPosition);
+        }
+    }
+
+    if (aditionalBall != null && aditionalBallPosition != null && aditionalBallVelocity != null) {
+        aditionalMovement();
+    }
+
+    return { aditionalBallPosition }
 }

@@ -33,7 +33,7 @@ function reset(baseScenario) {
 
 var keyboard = new KeyboardState();
 
-export const keyboardUpdate = (canvas, gameRunning, gameStart, baseScenario, mustInitialize, changeStage) => {
+export const keyboardUpdate = (canvas, gameRunning, gameStart, baseScenario, mustInitialize, changeStage) => {   
     keyboard.update();
 
     if (keyboard.down("enter")) {

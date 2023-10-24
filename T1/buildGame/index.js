@@ -7,6 +7,7 @@ const lambertBlueMaterial = new THREE.MeshLambertMaterial({ color: 0x0000ff });
 const lambertOrangeMaterial = new THREE.MeshLambertMaterial({ color: 0xffa500 });
 const lambertPinkMaterial = new THREE.MeshLambertMaterial({ color: 0xff00f7 });
 const lambertGreenMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
 
 const wallThickness = 0.5;
 const brickHeight = 0.8;
@@ -86,36 +87,32 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
           break;
       }
 
-      brick = new THREE.Mesh(brickGeometry, material);
+      if (brick != "") {
+        brick = new THREE.Mesh(brickGeometry, material);
 
-      if (brick) {
-        brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
-        brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
-        brick.position.z = 0.8;
+        if (brick) {
+          brick.position.x = initilPositionX + (column * (brickWidth + brickMargin));
+          brick.position.y = initilPositionY - (line * (brickHeight + brickMargin));
+          brick.position.z = 0.8;
 
-        brick.castShadow = true;
+          brick.castShadow = true;
 
-        baseScenario.add(brick);
+          baseScenario.add(brick);
 
-        brickRow.push(brick);
+          brickRow.push(brick);
 
-        brick.name = name;
+          brick.name = name;
+        }
       }
     })
 
     bricksMatrix.push(brickRow);
   })
 
-  return bricksMatrix;
+  return { bricksMatrix, brickWidth };
 }
 
 export const buildGame = (baseScenario, gameWidth, fase) => {
-
-  const basicBlueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-
-  const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
-  const phongGreyMaterial = new THREE.MeshPhongMaterial({ color: 0xaaaaaa });
-
   const buildBall = () => {
     const ballGeometry = new THREE.SphereGeometry(0.2);
 
@@ -136,12 +133,12 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
     const verticalWallGeometry = new THREE.BoxGeometry(
       wallThickness,
       2 * gameWidth,
-      2
+      3.5
     );
     const horizontalWallGeometry = new THREE.BoxGeometry(
       gameWidth,
       wallThickness,
-      2
+      3.5
     );
 
     const leftWall = new THREE.Mesh(verticalWallGeometry, lambertBlueMaterial);
@@ -235,12 +232,13 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
   const wallsArray = buildWalls();
   const hitter = buildHitter();
   const ball = buildBall();
-  const bricksMatrix = buildBricks(baseScenario, fase, gameWidth);
+  const { bricksMatrix, brickWidth } = buildBricks(baseScenario, fase, gameWidth);
 
   return {
     hitter,
     ball,
     wallsArray,
     bricksMatrix,
+    brickWidth
   };
 };

@@ -9,13 +9,18 @@ import { buildGame } from './buildGame/index.js';
 import { checkGame } from "./checkGame/index.js";
 import { onMouseMove } from "./hitterMovement/index.js";
 import { keyboardUpdate } from "./Utils/Keyboard/index.js";
-import { ballMovementHandler } from "./ballHandler/index.js";
+import { ballMovementHandler, aditionalBallMovementHandler } from "./ballHandler/index.js";
 import {
   wallColisionHandler,
+  aditionalWallColisionHandler,
   brickColisionHandler,
+  aditionalBrickColisionHandler,
   hitterColisionHandler,
+  aditionalHitterColisionHandler,
   floorColisionHandler,
+  aditionalFloorColisionHandler
 } from "./colisionHandler/index.js";
+import { powerUpMovement, removePowerUp, pickUpPowerUp, checkPowerUp } from "./powerUpHandler/index.js";
 
 const scene = new THREE.Scene();
 
@@ -65,7 +70,8 @@ window.addEventListener(
 window.addEventListener(
   "initialize",
   () => {
-    initializeGame();
+    initializeGame(true);
+    actualStage = 1;
   },
   false
 );
@@ -84,36 +90,59 @@ window.addEventListener(
   false
 );
 
-// const camera = orthographicCameraInitialization(screenWidth, screenHeight);
 const camera = perspectiveCameraInitialization(screenWidth, screenHeight);
 
-const [backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
+const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
 
 lightInitialization(scene);
 
 let ball,
+  aditionalBall,
   wallsArray,
   bricksMatrix,
   hitter,
+  brickWidth,
   ballPosition,
   ballVelocity,
   gameStart,
   gameRunning,
-  gameFinish;
+  gameFinish,
+  powerUpAvailable,
+  brickCounter,
+  hadColission,
+  powerUp,
+  powerUpPosition,
+  aditionalBallPosition,
+  aditionalBallVelocity;
 
-const initializeGame = () => {
-  let components = buildGame(backgroundContent, gameWidth, actualStage);
+const initializeGame = (mustReset = false) => {
+  let components;
+
+  if (mustReset) {
+    components = buildGame(backgroundContent, gameWidth, 1);
+  } else {
+    components = buildGame(backgroundContent, gameWidth, actualStage);
+  }
 
   ball = components.ball;
   wallsArray = components.wallsArray;
   bricksMatrix = components.bricksMatrix;
   hitter = components.hitter;
+  brickWidth = components.brickWidth;
 
   ballPosition = ball.position;
   ballVelocity = new THREE.Vector3(0.0, 0.0, 0);
   gameStart = false;
   gameRunning = false;
   gameFinish = false;
+  powerUpAvailable = true;
+  brickCounter = 0;
+  hadColission = false;
+  powerUp = null;
+  powerUpPosition = null;
+  aditionalBall = null;
+  aditionalBallPosition = null;
+  aditionalBallVelocity = null;
 };
 
 initializeGame();
@@ -126,8 +155,44 @@ const onMouseClick = () => {
   }
 };
 
+const colissionTimer = () => {
+  if (hadColission) {
+    setTimeout(() => {
+      hadColission = false;
+    }, 100);
+  }
+}
+
 const render = () => {
   requestAnimationFrame(render);
+
+  colissionTimer();
+
+  ({ powerUpAvailable } = checkPowerUp(aditionalBall));
+  ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity } = pickUpPowerUp(
+    powerUp,
+    powerUpPosition,
+    hitter,
+    backgroundContent,
+    ballPosition,
+    ballVelocity,
+    aditionalBall,
+    aditionalBallPosition,
+    aditionalBallVelocity
+  ));
+  ({ powerUpAvailable } = removePowerUp(
+    powerUp,
+    powerUpPosition,
+    backgroundContent,
+    gameWidth,
+    powerUpAvailable
+  ));
+  ({ powerUpPosition } = powerUpMovement(
+    powerUp,
+    powerUpPosition,
+    gameRunning
+  ));
+
   ({ gameRunning } = keyboardUpdate(
     canvas,
     gameRunning,
@@ -136,11 +201,15 @@ const render = () => {
     mustInitialize,
     changeStage
   ));
+
   ({ gameRunning, gameStart, gameFinish } = checkGame(
     bricksMatrix,
     gameRunning,
     gameStart,
-    gameFinish
+    gameFinish,
+    actualStage,
+    changeStage,
+    backgroundContent
   ));
 
   ({ ballPosition } = ballMovementHandler(
@@ -152,21 +221,83 @@ const render = () => {
     hitter,
     gameFinish
   ));
+  ({ aditionalBallPosition } = aditionalBallMovementHandler(
+    aditionalBall,
+    aditionalBallPosition,
+    aditionalBallVelocity,
+    gameRunning
+  ));
+
   ({ ballVelocity } = wallColisionHandler(ball, wallsArray, ballVelocity));
+  ({ aditionalBallVelocity } = aditionalWallColisionHandler(aditionalBall, wallsArray, aditionalBallVelocity));
+
   ({ ballVelocity } = hitterColisionHandler(ball, ballVelocity, hitter));
-  ({ ballVelocity } = brickColisionHandler(
+  ({ aditionalBallVelocity } = aditionalHitterColisionHandler(aditionalBall, aditionalBallVelocity, hitter));
+
+  ({
+    ballVelocity,
+    powerUpAvailable,
+    brickCounter,
+    hadColission,
+    powerUp,
+    powerUpPosition
+  } = brickColisionHandler(
     ball,
     bricksMatrix,
     ballVelocity,
-    backgroundContent
+    backgroundContent,
+    powerUpAvailable,
+    brickCounter,
+    hadColission,
+    brickWidth,
+    powerUp,
+    powerUpPosition
   ));
-  ({ ballVelocity, gameRunning, gameStart } = floorColisionHandler(
+  ({
+    aditionalBallVelocity,
+    powerUpAvailable,
+    brickCounter,
+    hadColission,
+    powerUp,
+    powerUpPosition
+  } = aditionalBrickColisionHandler(
+    aditionalBall,
+    bricksMatrix,
+    aditionalBallVelocity,
+    backgroundContent,
+    powerUpAvailable,
+    brickCounter,
+    hadColission,
+    brickWidth,
+    powerUp,
+    powerUpPosition
+  ));
+
+  ({
+    ballVelocity,
+    gameRunning,
+    gameStart,
+    aditionalBall,
+    aditionalBallPosition,
+    aditionalBallVelocity
+  } = floorColisionHandler(
     ball,
     ballVelocity,
     gameWidth,
     gameRunning,
     hitter,
-    gameStart
+    gameStart,
+    aditionalBall,
+    aditionalBallPosition,
+    aditionalBallVelocity,
+    backgroundContent
+  ));
+  ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity } = aditionalFloorColisionHandler(
+    aditionalBall,
+    aditionalBallPosition,
+    aditionalBallVelocity,
+    gameWidth,
+    backgroundContent
   ));
 
   renderer.render(scene, camera);
