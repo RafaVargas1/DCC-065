@@ -22,10 +22,7 @@ import {
 } from "./colisionHandler/index.js";
 import { powerUpMovement, removePowerUp, pickUpPowerUp, checkPowerUp } from "./powerUpHandler/index.js";
 
-
-let fase = 1;
-
-const startVelocity = 0.125;
+const startVelocity = 0.25;
 const time = 15;
 let resultantVelocity = .125;
 const multiplyFactor = Math.pow(2, 1/(4*time));
@@ -254,7 +251,12 @@ const render = () => {
     aditionalBall,
     aditionalBallPosition,
     aditionalBallVelocity,
-    gameRunning
+    gameRunning, 
+    time, 
+    elapsedTime, 
+    multiplyFactor, 
+    startVelocity, 
+    timesIncreased
   ));
 
   ({ ballVelocity } = wallColisionHandler(ball, wallsArray, ballVelocity));
