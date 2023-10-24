@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { initRenderer, onWindowResize } from "../libs/util/util.js";
+import { initRenderer, onWindowResize, initDefaultBasicLight, InfoBox } from "../libs/util/util.js";
 // import { orthographicCameraInitialization } from "./Utils/OrthographicCamera/index.js";
 import { perspectiveCameraInitialization } from "./Utils/PerspectiveCamera/index.js";
 import { lightInitialization } from "./Utils/Light/index.js";
@@ -21,6 +21,29 @@ import {
   aditionalFloorColisionHandler
 } from "./colisionHandler/index.js";
 import { powerUpMovement, removePowerUp, pickUpPowerUp, checkPowerUp } from "./powerUpHandler/index.js";
+
+
+let fase = 1;
+
+const startVelocity = 0.125;
+const time = 15;
+let resultantVelocity = .125;
+const multiplyFactor = Math.pow(2, 1/(4*time));
+let elapsedTime = 0;
+let timesIncreased = 1;
+
+let speedInfoBox = null;
+
+const handleTextBallVelocity = () => {    
+  if (speedInfoBox)
+    speedInfoBox.infoBox.remove()
+
+  speedInfoBox = new InfoBox();
+
+  const textBallVelocity = "Velocidade " + resultantVelocity;
+  speedInfoBox.add(textBallVelocity)
+  speedInfoBox.show();
+}
 
 const scene = new THREE.Scene();
 
@@ -149,9 +172,10 @@ initializeGame();
 
 const onMouseClick = () => {
   if (!gameRunning && !gameStart && !gameFinish) {
+    elapsedTime = 0;
     gameStart = true;
     gameRunning = true;
-    ballVelocity = new THREE.Vector3(0, 0.25, 0);
+    ballVelocity = new THREE.Vector3(0, startVelocity, 0);
   }
 };
 
@@ -212,10 +236,15 @@ const render = () => {
     backgroundContent
   ));
 
-  ({ ballPosition } = ballMovementHandler(
+  ({ ballPosition, elapsedTime, ballVelocity, timesIncreased } = ballMovementHandler(
     ball,
     ballPosition,
     ballVelocity,
+    time,
+    elapsedTime,
+    multiplyFactor,
+    startVelocity,
+    timesIncreased,
     gameRunning,
     gameStart,
     hitter,
@@ -300,6 +329,9 @@ const render = () => {
     backgroundContent
   ));
 
+  handleTextBallVelocity();
+
+  resultantVelocity = Math.sqrt(Math.pow(ballVelocity.y,2) + Math.pow(ballVelocity.x, 2)).toFixed(3)
   renderer.render(scene, camera);
 };
 

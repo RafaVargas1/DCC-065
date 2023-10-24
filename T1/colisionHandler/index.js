@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { generatePowerUp } from "../powerUpHandler/index.js";
 
+const lambertNewGreyMaterial = new THREE.MeshLambertMaterial({ color: 0x333333 });
+
 export const wallColisionHandler = (
   ball,
   wallsMeshArray,
@@ -115,8 +117,8 @@ export const floorColisionHandler = (
   gameRunning,
   hitter,
   gameStart,
-  aditionalBall, 
-  aditionalBallPosition, 
+  aditionalBall,
+  aditionalBallPosition,
   aditionalBallVelocity,
   baseScenario
 ) => {
@@ -330,11 +332,21 @@ export const brickColisionHandler = (
           mustBroke = true;
         }
 
-        if (mustBroke) {
-          baseScenario.remove(brick);
-          brick.name = "broken";
+        if (mustBroke) {          
+          if (brick.specialType) {
+            if (brick.name == "hitted") {
+              baseScenario.remove(brick);
+              brick.name = "broken";
+            } else {
+              brick.name = "hitted";
+              brick.material = lambertNewGreyMaterial;
+            }
+          } else {
+            baseScenario.remove(brick);
+            brick.name = "broken";
+          }
 
-          if (powerUpAvailable) {
+          if (powerUpAvailable && brick.name == "broken") {
             brickCounter++;
 
             if (brickCounter == 10) {
