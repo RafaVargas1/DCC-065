@@ -173,7 +173,7 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
     const rectangle = new THREE.Mesh(boxGeometry, lambertBlueMaterial);
 
     cylinder.position.copy(new THREE.Vector3(0, 0, 0));
-    rectangle.position.copy(new THREE.Vector3(0.5, 0, 0));
+    rectangle.position.copy(new THREE.Vector3(2, 0, 0));
 
     cylinder.matrixAutoUpdate = false;
     cylinder.updateMatrix();
@@ -183,7 +183,7 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
     rectangle.updateMatrix();
     let rectangleCSG = CSG.fromMesh(rectangle);
 
-    let hitterCSG = cylinderCSG.subtract(rectangleCSG);
+    let hitterCSG = cylinderCSG.intersect(rectangleCSG);
 
     let hitter = CSG.toMesh(hitterCSG, new THREE.Matrix4());
 
@@ -194,10 +194,12 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
     hitter.translateZ(0.8);
 
     hitter.rotateY(THREE.MathUtils.degToRad(90));
-    hitter.rotateZ(THREE.MathUtils.degToRad(-90));
+    hitter.rotateZ(THREE.MathUtils.degToRad(90));
 
     hitter.name = "hitter";
     hitter.castShadow = true;
+
+    hitter.geometry.scale(0.5, 1, 1);
 
     baseScenario.add(hitter);
 
