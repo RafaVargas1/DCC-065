@@ -22,7 +22,7 @@ export const buildHitter = () => {
     const rectangle = new THREE.Mesh(boxGeometry, material);
     
     cylinder.position.copy(new THREE.Vector3(0, 0, 0));
-    rectangle.position.copy(new THREE.Vector3(0.5, 0, 0));
+    rectangle.position.copy(new THREE.Vector3(1, 0, 0));
     
     cylinder.matrixAutoUpdate = false;
     cylinder.updateMatrix();
@@ -32,16 +32,18 @@ export const buildHitter = () => {
     rectangle.updateMatrix();
     let rectangleCSG = CSG.fromMesh(rectangle);
     
-    let hitterCSG = cylinderCSG.subtract(rectangleCSG);
+    let hitterCSG = cylinderCSG.intersect(rectangleCSG);
     
     let hitter = CSG.toMesh(hitterCSG, new THREE.Matrix4());
     
-    hitter.material = new THREE.MeshPhongMaterial({ color: 'lightgreen' });
+    hitter.material = new THREE.MeshPhongMaterial({ color: 'blue' });
     
     hitter.position.set(0, 0, 0);
     
     hitter.rotateY(THREE.MathUtils.degToRad(90)); 
-    hitter.rotateZ(THREE.MathUtils.degToRad(-90)); 
+    hitter.rotateZ(THREE.MathUtils.degToRad(90)); 
+
+    hitter.geometry.scale(0.5, 1, 1);
     
     return hitter;
 }
