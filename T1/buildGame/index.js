@@ -122,7 +122,7 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
 
     const ball = new THREE.Mesh(ballGeometry, phongBlueMaterial);
 
-    ball.translateY((1.65 * gameWidth) / -2);
+    ball.translateY((1.64 * gameWidth) / -2);
 
     ball.position.z = 20;
 

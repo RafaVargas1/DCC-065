@@ -124,7 +124,7 @@ export const floorColisionHandler = (
 ) => {
   const detectColision = () => {
     if (ball.position.y < (2 * gameWidth) / -2) {
-      ball.position.copy(new THREE.Vector3(0.0, (1.65 * gameWidth) / -2, 20));
+      ball.position.copy(new THREE.Vector3(0.0, (1.64 * gameWidth) / -2, 20));
       ballVelocity = new THREE.Vector3(0.0, 0.0, 0.0);
       gameRunning = false;
       gameStart = false;
