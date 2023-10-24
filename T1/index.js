@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
-import { initRenderer, onWindowResize, initDefaultBasicLight, InfoBox } from "../libs/util/util.js";
-// import { orthographicCameraInitialization } from "./Utils/OrthographicCamera/index.js";
+import { initRenderer, onWindowResize, InfoBox } from "../libs/util/util.js";
 import { perspectiveCameraInitialization } from "./Utils/PerspectiveCamera/index.js";
 import { lightInitialization } from "./Utils/Light/index.js";
 import { setupBackground } from './setupBackground/index.js';
@@ -133,7 +132,8 @@ let ball,
   powerUp,
   powerUpPosition,
   aditionalBallPosition,
-  aditionalBallVelocity;
+  aditionalBallVelocity,
+  colissionDetected;
 
 const initializeGame = (mustReset = false) => {
   let components;
@@ -163,6 +163,7 @@ const initializeGame = (mustReset = false) => {
   aditionalBall = null;
   aditionalBallPosition = null;
   aditionalBallVelocity = null;
+  colissionDetected = false;
 };
 
 initializeGame();
@@ -181,6 +182,12 @@ const colissionTimer = () => {
     setTimeout(() => {
       hadColission = false;
     }, 100);
+  }
+}
+
+const resetColission = () => {
+  if (colissionDetected) {
+    colissionDetected = false;
   }
 }
 
@@ -262,7 +269,7 @@ const render = () => {
   ({ ballVelocity } = wallColisionHandler(ball, wallsArray, ballVelocity));
   ({ aditionalBallVelocity } = aditionalWallColisionHandler(aditionalBall, wallsArray, aditionalBallVelocity));
 
-  ({ ballVelocity } = hitterColisionHandler(ball, ballVelocity, hitter));
+  ({ ballVelocity, colissionDetected } = hitterColisionHandler(ball, ballVelocity, hitter, colissionDetected));
   ({ aditionalBallVelocity } = aditionalHitterColisionHandler(aditionalBall, aditionalBallVelocity, hitter));
 
   ({
@@ -333,7 +340,10 @@ const render = () => {
 
   handleTextBallVelocity();
 
-  resultantVelocity = Math.sqrt(Math.pow(ballVelocity.y,2) + Math.pow(ballVelocity.x, 2)).toFixed(3)
+  resultantVelocity = Math.sqrt(Math.pow(ballVelocity.y,2) + Math.pow(ballVelocity.x, 2)).toFixed(3);
+
+  resetColission();
+
   renderer.render(scene, camera);
 };
 

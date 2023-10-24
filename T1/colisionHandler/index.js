@@ -123,8 +123,8 @@ export const floorColisionHandler = (
   baseScenario
 ) => {
   const detectColision = () => {
-    if (ball.position.y < (1.8 * gameWidth) / -2) {
-      ball.position.copy(new THREE.Vector3(0.0, (1.525 * gameWidth) / -2, 20));
+    if (ball.position.y < (2 * gameWidth) / -2) {
+      ball.position.copy(new THREE.Vector3(0.0, (1.65 * gameWidth) / -2, 20));
       ballVelocity = new THREE.Vector3(0.0, 0.0, 0.0);
       gameRunning = false;
       gameStart = false;
@@ -153,7 +153,7 @@ export const aditionalFloorColisionHandler = (
   baseScenario
 ) => {
   const detectColision = () => {
-    if (ball.position.y < (1.8 * gameWidth) / -2) {
+    if (ball.position.y < (2 * gameWidth) / -2) {
 
       baseScenario.remove(ball);
       ball = null;
@@ -528,11 +528,21 @@ export const aditionalBrickColisionHandler = (
           mustBroke = true;
         }
 
-        if (mustBroke) {
-          baseScenario.remove(brick);
-          brick.name = "broken";
+        if (mustBroke) {          
+          if (brick.specialType) {
+            if (brick.name == "hitted") {
+              baseScenario.remove(brick);
+              brick.name = "broken";
+            } else {
+              brick.name = "hitted";
+              brick.material = lambertNewGreyMaterial;
+            }
+          } else {
+            baseScenario.remove(brick);
+            brick.name = "broken";
+          }
 
-          if (powerUpAvailable) {
+          if (powerUpAvailable && brick.name == "broken") {
             brickCounter++;
 
             if (brickCounter == 10) {
@@ -557,16 +567,20 @@ export const aditionalBrickColisionHandler = (
   return { aditionalBallVelocity, powerUpAvailable, brickCounter, hadColission, powerUp, powerUpPosition };
 };
 
-export const hitterColisionHandler = (ball, ballVelocity, hitter) => {
+export const hitterColisionHandler = (ball, ballVelocity, hitter, colissionDetected) => {
   let ballRadius;
 
   if (ball != null) {
     ballRadius = ball.geometry.parameters.radius;
   }
-  const hitterRadius = (0.225 * 14) / 2;
+  const hitterCenterRadius = (0.125 * 14) / 2;
+  const hitterBorderRadius = (0.100 * 14) / 2;
 
-  const calculateHitterReflection = (hitterSphere, ballSphere) => {
-    const collisionPoint = checkCollision(hitterSphere, ballSphere);
+  const rightBorder = new THREE.Vector3(hitter.position.x + 0.7, hitter.position.y + 0.1, hitter.position.z);
+  const leftBorder = new THREE.Vector3(hitter.position.x - 0.7, hitter.position.y + 0.1, hitter.position.z);
+
+  const calculateHitterReflection = (hitterSphere, ballSphere, position) => {
+    const collisionPoint = checkCollision(hitterSphere, ballSphere, position);
 
     const normal = new THREE.Vector3().copy(collisionPoint).normalize();
 
@@ -581,8 +595,16 @@ export const hitterColisionHandler = (ball, ballVelocity, hitter) => {
     ballVelocity.z = incidentVector.z;
   };
 
-  const checkCollision = (hitterSphere, ballSphere) => {
+  const checkCollision = (hitterSphere, ballSphere, position) => {
     const distance = hitterSphere.center.distanceTo(ballSphere.center);
+
+    let hitterRadius;
+
+    if (position == "center") {
+      hitterRadius = (0.125 * 14) / 2;
+    } else if (position == "border") {
+      hitterRadius = (0.100 * 14) / 2;
+    }
 
     if (distance < hitterRadius + ballRadius) {
       const direction = new THREE.Vector3().subVectors(ballSphere.center, hitterSphere.center).normalize();
@@ -594,10 +616,22 @@ export const hitterColisionHandler = (ball, ballVelocity, hitter) => {
 
   const detectHitterColision = () => {
     const sphere = new THREE.Sphere(ball.position, ballRadius);
-    const hitterBox = new THREE.Sphere(hitter.position, hitterRadius);
 
-    if (hitterBox.intersectsSphere(sphere)) {
-      calculateHitterReflection(hitterBox, sphere);
+    const hitterCenter = new THREE.Sphere(hitter.position, hitterCenterRadius);
+    const hitterBorderRight = new THREE.Sphere(rightBorder, hitterBorderRadius);
+    const hitterBorderLeft = new THREE.Sphere(leftBorder, hitterBorderRadius);
+
+    if ((hitterCenter.intersectsSphere(sphere) || hitterBorderRight.intersectsSphere(sphere) || hitterBorderLeft.intersectsSphere(sphere)) && !colissionDetected) {
+      if (hitterCenter.intersectsSphere(sphere) && !colissionDetected) {
+        colissionDetected = true;
+        calculateHitterReflection(hitterCenter, sphere, "center");
+      } else if (hitterBorderRight.intersectsSphere(sphere) && !colissionDetected) {
+        colissionDetected = true;
+        calculateHitterReflection(hitterBorderRight, sphere, "border");
+      } else if (hitterBorderLeft.intersectsSphere(sphere) && !colissionDetected) {
+        colissionDetected = true;
+        calculateHitterReflection(hitterBorderLeft, sphere, "border");
+      }
     }
   };
 
@@ -605,7 +639,7 @@ export const hitterColisionHandler = (ball, ballVelocity, hitter) => {
     detectHitterColision();
   }
 
-  return { ballVelocity };
+  return { ballVelocity, colissionDetected };
 };
 
 export const aditionalHitterColisionHandler = (ball, ballVelocity, hitter) => {
