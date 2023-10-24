@@ -10,7 +10,7 @@ const lambertGreenMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
 const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
 
 const wallThickness = 0.5;
-const brickHeight = 0.8;
+const brickHeight = 0.6;
 const brickMargin = 0.12;
 
 export const buildBricks = (baseScenario, fase, gameWidth) => {

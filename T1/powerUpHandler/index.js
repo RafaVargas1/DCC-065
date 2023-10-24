@@ -3,7 +3,8 @@ import * as THREE from "three";
 export const generatePowerUp = (brick, brickWidth, baseScenario) => {
     const brickHeight = 0.8;
 
-    const powerUpBackgroundGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
+    // const powerUpBackgroundGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
+    const powerUpBackgroundGeometry = new THREE.SphereGeometry(0.2);
     const powerUpSymbolGeometry = new THREE.SphereGeometry(0.2);
 
     const lambertYellowMaterial = new THREE.MeshLambertMaterial({ color: 0xffff00 });
@@ -63,7 +64,7 @@ export const pickUpPowerUp = (powerUp, powerUpPosition, hitter, baseScenario, ba
 
 const activatePowerUp = (ballPosition, baseScenario) => {
     const ballGeometry = new THREE.SphereGeometry(0.2);
-    const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0xffff00 });
+    const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
 
     const ball = new THREE.Mesh(ballGeometry, phongBlueMaterial);
 
@@ -90,7 +91,7 @@ export const checkPowerUp = (aditionalBall) => {
 
 export const powerUpMovement = (powerUp, powerUpPosition, gameRunning) => {
     if (gameRunning && powerUp != null && powerUpPosition != null) {
-        powerUpPosition.add(new THREE.Vector3(0, -0.25, 0));
+        powerUpPosition.add(new THREE.Vector3(0, -0.1, 0));
         powerUp.position.copy(powerUpPosition);
     }
 

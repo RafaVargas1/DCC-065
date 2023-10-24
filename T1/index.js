@@ -22,7 +22,7 @@ import {
 } from "./colisionHandler/index.js";
 import { powerUpMovement, removePowerUp, pickUpPowerUp, checkPowerUp } from "./powerUpHandler/index.js";
 
-const startVelocity = 0.25;
+const startVelocity = 0.125;
 const time = 15;
 let resultantVelocity = .125;
 const multiplyFactor = Math.pow(2, 1/(4*time));
@@ -284,6 +284,8 @@ const render = () => {
     powerUp,
     powerUpPosition
   ));
+
+
   ({
     aditionalBallVelocity,
     powerUpAvailable,
@@ -323,6 +325,8 @@ const render = () => {
     aditionalBallVelocity,
     backgroundContent
   ));
+
+  
   ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity } = aditionalFloorColisionHandler(
     aditionalBall,
     aditionalBallPosition,
