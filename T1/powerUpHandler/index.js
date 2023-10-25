@@ -36,7 +36,7 @@ export const removePowerUp = (powerUp, powerUpPosition, baseScenario, gameWidth,
         }
     }
 
-    return { powerUpAvailable };
+    return { powerUpAvailable, powerUp, powerUpPosition };
 }
 
 export const pickUpPowerUp = (powerUp, powerUpPosition, hitter, baseScenario, ballPosition, ballVelocity, aditionalBall, aditionalBallPosition, aditionalBallVelocity) => {
@@ -58,7 +58,7 @@ export const pickUpPowerUp = (powerUp, powerUpPosition, hitter, baseScenario, ba
         }
     }
 
-    return { aditionalBall, aditionalBallPosition, aditionalBallVelocity };
+    return { aditionalBall, aditionalBallPosition, aditionalBallVelocity, powerUp, powerUpPosition };
 }
 
 const activatePowerUp = (ballPosition, baseScenario) => {

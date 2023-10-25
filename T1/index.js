@@ -191,7 +191,7 @@ const render = () => {
   requestAnimationFrame(render);
 
   ({ powerUpAvailable } = checkPowerUp(aditionalBall, powerUp));
-  ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity } = pickUpPowerUp(
+  ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity, powerUp, powerUpPosition } = pickUpPowerUp(
     powerUp,
     powerUpPosition,
     hitter,
@@ -202,7 +202,7 @@ const render = () => {
     aditionalBallPosition,
     aditionalBallVelocity
   ));
-  ({ powerUpAvailable } = removePowerUp(
+  ({ powerUpAvailable, powerUp, powerUpPosition } = removePowerUp(
     powerUp,
     powerUpPosition,
     backgroundContent,
