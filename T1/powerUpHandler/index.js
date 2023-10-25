@@ -3,15 +3,14 @@ import * as THREE from "three";
 export const generatePowerUp = (brick, brickWidth, baseScenario) => {
     const brickHeight = 0.8;
 
-    // const powerUpBackgroundGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
-    const powerUpBackgroundGeometry = new THREE.SphereGeometry(0.2);
+    const powerUpBackgroundGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
     const powerUpSymbolGeometry = new THREE.SphereGeometry(0.2);
 
     const lambertYellowMaterial = new THREE.MeshLambertMaterial({ color: 0xffff00 });
     const lambertRedMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
 
-    const powerUpBackground = new THREE.Mesh(powerUpBackgroundGeometry, lambertYellowMaterial);
-    const powerUpSymbol = new THREE.Mesh(powerUpSymbolGeometry, lambertRedMaterial);
+    const powerUpBackground = new THREE.Mesh(powerUpBackgroundGeometry, lambertRedMaterial);
+    const powerUpSymbol = new THREE.Mesh(powerUpSymbolGeometry, lambertYellowMaterial);
 
     powerUpBackground.position.copy(brick.position);
 
@@ -19,7 +18,7 @@ export const generatePowerUp = (brick, brickWidth, baseScenario) => {
 
     powerUpBackground.add(powerUpSymbol);
 
-    powerUpSymbol.position.copy(10, 0, 0);
+    powerUpSymbol.position.copy(new THREE.Vector3(0, 0, 0.5));
 
     baseScenario.add(powerUpBackground);
 
@@ -52,7 +51,7 @@ export const pickUpPowerUp = (powerUp, powerUpPosition, hitter, baseScenario, ba
             powerUp.name = "picked";
             aditionalBall = activatePowerUp(ballPosition, baseScenario);
             aditionalBallPosition = new THREE.Vector3(ballPosition.x >= 0 ? ballPosition.x - 1.5 : ballPosition.x + 1.5, ballPosition.y, ballPosition.z);
-            aditionalBallVelocity = new THREE.Vector3(ballVelocity.x * -1, ballVelocity.y, ballVelocity.z);
+            aditionalBallVelocity = ballVelocity.reflect(new THREE.Vector3(1, 0, 0));
 
             powerUp = null;
             powerUpPosition = null;
@@ -64,23 +63,23 @@ export const pickUpPowerUp = (powerUp, powerUpPosition, hitter, baseScenario, ba
 
 const activatePowerUp = (ballPosition, baseScenario) => {
     const ballGeometry = new THREE.SphereGeometry(0.2);
-    const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+    const phongYellowMaterial = new THREE.MeshPhongMaterial({ color: 0xffff00 });
 
-    const ball = new THREE.Mesh(ballGeometry, phongBlueMaterial);
+    const aditionalBall = new THREE.Mesh(ballGeometry, phongYellowMaterial);
 
-    ball.position.copy(ballPosition);
+    aditionalBall.position.copy(ballPosition);
 
-    ball.castShadow = true;
+    aditionalBall.castShadow = true;
 
-    baseScenario.add(ball);
+    baseScenario.add(aditionalBall);
 
-    return ball;
+    return aditionalBall;
 }
 
-export const checkPowerUp = (aditionalBall) => {
+export const checkPowerUp = (aditionalBall, powerUp) => {
     let powerUpAvailable;
 
-    if (aditionalBall != null) {
+    if (aditionalBall != null || powerUp != null) {
         powerUpAvailable = false;
     } else {
         powerUpAvailable = true;

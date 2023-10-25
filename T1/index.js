@@ -21,7 +21,7 @@ import {
 } from "./colisionHandler/index.js";
 import { powerUpMovement, removePowerUp, pickUpPowerUp, checkPowerUp } from "./powerUpHandler/index.js";
 
-const startVelocity = 0.125;
+const startVelocity = 0.15;
 const time = 15;
 let resultantVelocity = .125;
 const multiplyFactor = Math.pow(2, 1/(4*time));
@@ -177,26 +177,20 @@ const onMouseClick = () => {
   }
 };
 
-const colissionTimer = () => {
-  if (hadColission) {
-    setTimeout(() => {
-      hadColission = false;
-    }, 100);
-  }
-}
-
 const resetColission = () => {
   if (colissionDetected) {
     colissionDetected = false;
+  }
+
+  if (hadColission) {
+    hadColission = false;
   }
 }
 
 const render = () => {
   requestAnimationFrame(render);
 
-  colissionTimer();
-
-  ({ powerUpAvailable } = checkPowerUp(aditionalBall));
+  ({ powerUpAvailable } = checkPowerUp(aditionalBall, powerUp));
   ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity } = pickUpPowerUp(
     powerUp,
     powerUpPosition,
@@ -270,7 +264,7 @@ const render = () => {
   ({ aditionalBallVelocity } = aditionalWallColisionHandler(aditionalBall, wallsArray, aditionalBallVelocity));
 
   ({ ballVelocity, colissionDetected } = hitterColisionHandler(ball, ballVelocity, hitter, colissionDetected));
-  ({ aditionalBallVelocity } = aditionalHitterColisionHandler(aditionalBall, aditionalBallVelocity, hitter));
+  ({ aditionalBallVelocity, colissionDetected } = aditionalHitterColisionHandler(aditionalBall, aditionalBallVelocity, hitter, colissionDetected));
 
   ({
     ballVelocity,
