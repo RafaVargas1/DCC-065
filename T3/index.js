@@ -20,6 +20,7 @@ import {
   aditionalFloorColisionHandler
 } from "./colisionHandler/index.js";
 import { powerUpMovement, removePowerUp, pickUpPowerUp, checkPowerUp } from "./powerUpHandler/index.js";
+import { OrbitControls } from '../build/jsm/controls/OrbitControls.js'
 
 const startVelocity = 0.15;
 const time = 15;
@@ -112,6 +113,10 @@ window.addEventListener(
 );
 
 const camera = perspectiveCameraInitialization(screenWidth, screenHeight);
+const controls = new OrbitControls(camera, renderer.domElement);
+
+controls.enabled = true;
+controls.enableZoom = true;
 
 const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
 
