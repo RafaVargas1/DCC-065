@@ -4,9 +4,10 @@ import { CSG } from "../../libs/other/CSGMesh.js";
 const lambertRedMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
 const lambertGreyMaterial = new THREE.MeshLambertMaterial({ color: 0x999999 });
 const lambertBlueMaterial = new THREE.MeshLambertMaterial({ color: 0x0000ff });
-const lambertOrangeMaterial = new THREE.MeshLambertMaterial({ color: 0xffa500 });
+const lambertOrangeMaterial = new THREE.MeshLambertMaterial({ color: 0xD75413 });
 const lambertPinkMaterial = new THREE.MeshLambertMaterial({ color: 0xff00f7 });
 const lambertGreenMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+const lambertGoldMaterial = new THREE.MeshLambertMaterial({ color: 0XFFD700 });
 const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
 
 const wallThickness = 0.5;
@@ -45,6 +46,22 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
         ['P', 'G', 'O', 'C', '', 'G', 'O', 'R', 'P']
       ]
       break;
+    case 3:
+        bricks = [
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['B', '', 'I', 'O', 'I', 'O', 'I', 'O', 'I', '','B'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+          ['O', '', 'I', '', 'I', '', 'I', '', 'I', '','O'],
+          ['B', '', 'R', '', 'G', '', 'G', '', 'R', '','B'],
+        ]
   }
 
   let bricksMatrix = [];
@@ -85,6 +102,9 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
         case 'G':
           material = lambertGreenMaterial;
           break;
+        case 'I':
+          material = lambertGoldMaterial
+          break;
       }
 
       if (brick != "") {
@@ -92,6 +112,8 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
 
       if (material === lambertGreyMaterial) {
         brick.specialType = true;
+      } else if (material == lambertGoldMaterial) {
+        brick.indestructible = true;
       }
 
       if (brick && material) {

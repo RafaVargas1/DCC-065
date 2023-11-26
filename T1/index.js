@@ -100,9 +100,11 @@ window.addEventListener(
   () => {
     if (actualStage == 1) {
       actualStage = 2;
+    } else if (actualStage == 2) {
+      actualStage = 3;
     } else {
       actualStage = 1;
-    };
+    }; 
 
     initializeGame();
   },
@@ -141,7 +143,7 @@ const initializeGame = (mustReset = false) => {
   if (mustReset) {
     components = buildGame(backgroundContent, gameWidth, 1);
   } else {
-    components = buildGame(backgroundContent, gameWidth, actualStage);
+    components = buildGame(backgroundContent, gameWidth, 3);
   }
 
   ball = components.ball;
@@ -191,6 +193,7 @@ const render = () => {
   requestAnimationFrame(render);
 
   ({ powerUpAvailable } = checkPowerUp(aditionalBall, powerUp));
+
   ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity, powerUp, powerUpPosition } = pickUpPowerUp(
     powerUp,
     powerUpPosition,
@@ -202,6 +205,7 @@ const render = () => {
     aditionalBallPosition,
     aditionalBallVelocity
   ));
+
   ({ powerUpAvailable, powerUp, powerUpPosition } = removePowerUp(
     powerUp,
     powerUpPosition,
@@ -209,6 +213,7 @@ const render = () => {
     gameWidth,
     powerUpAvailable
   ));
+
   ({ powerUpPosition } = powerUpMovement(
     powerUp,
     powerUpPosition,
@@ -248,6 +253,7 @@ const render = () => {
     hitter,
     gameFinish
   ));
+
   ({ aditionalBallPosition } = aditionalBallMovementHandler(
     aditionalBall,
     aditionalBallPosition,

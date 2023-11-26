@@ -338,7 +338,7 @@ export const brickColisionHandler = (
           mustBroke = true;
         }
 
-        if (mustBroke) {
+        if (mustBroke && !brick.indestructible) {
           hadColission = true;
           if (brick.specialType) {
             if (brick.name == "hitted") {
