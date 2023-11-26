@@ -3,13 +3,13 @@ export const checkGame = ( bricksMatrix, gameRunning, gameStart, gameFinish, act
 
     bricksMatrix.forEach(brickrow => {
         brickrow.forEach(brick => {
-            if (brick.name != "broken") {
+            if (brick.name != "broken" && !brick.indestructible) {
                 mustPause = false;
             }
         })
     });
 
-    if (mustPause && (actualStage == 1)) {
+    if (mustPause && (actualStage == 1 || actualStage == 2)) {
         gameRunning = false;
         gameStart = false;
         
@@ -21,7 +21,7 @@ export const checkGame = ( bricksMatrix, gameRunning, gameStart, gameFinish, act
         window.dispatchEvent(changeStage);
     }
 
-    if (mustPause && (actualStage == 2)) {
+    if (mustPause && (actualStage == 3)) {
         gameRunning = false;
         gameStart = false;
         gameFinish = true;

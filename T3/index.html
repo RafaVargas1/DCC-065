@@ -1,23 +1,34 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <title> Jogo </title>
 
-      <link rel="shortcut icon" href="../favicon.ico">
-      <link rel="stylesheet" href="../../html/resources/default.css">
-      <meta name="viewport" content="width=device-width, initial-scale=1">  
-   </head>
+<head>
+   <title> Jogo </title>
 
-   <body>
-      <!-- Import maps polyfill -- Remove this when import maps will be widely supported-->
-      <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>  
-      <script type="importmap"> 
+   <link rel="shortcut icon" href="../favicon.ico">
+   <link rel="stylesheet" href="./Utils/screens.css">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+   <!-- Import maps polyfill -- Remove this when import maps will be widely supported-->
+   <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+   <script type="importmap">
          {"imports": {"three": "../build/three.module.js"}} 
-      </script>  
+      </script>
 
-      <div id="webgl-output">     
-         <script type="module" src="./index.js"></script>
+   <section id="start-screen">
+      <p id="title"> BRICK BREAKER </p>
+      <button class="button" id="start-button"> INICIAR JOGO </button>
+   </section>
 
-      </div>
-   </body>
+   <section id="end-screen">
+      <p id="end-message"> FIM DO JOGO! </p>
+   </section>
+
+   <div id="webgl-output">
+      <script type="module" src="./index.js"></script>
+
+   </div>
+</body>
+
 </html>

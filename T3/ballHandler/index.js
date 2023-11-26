@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-export const ballMovementHandler = ( ball, ballPosition, ballVelocity, time, elapsedTime, multiplyFactor, startVelocity, timesIncreased, gameRunning, gameStart, hitter, gameFinish ) => {
-    
+export const ballMovementHandler = (ball, ballPosition, ballVelocity, time, elapsedTime, multiplyFactor, startVelocity, timesIncreased, gameRunning, gameStart, hitter, gameFinish) => {
+
     const initialPositioning = () => {
         ball.position.copy(new THREE.Vector3(hitter.position.x, ballPosition.y, 0.6));
     }
@@ -19,41 +19,41 @@ export const ballMovementHandler = ( ball, ballPosition, ballVelocity, time, ela
 
     const accelerateMovement = () => {
         const timesInASecond = 4;
-    
+
         if (!gameRunning) {
             return;
         }
-       
-        const integerPart = Math.trunc(elapsedTime + 1/75);
-        const decimalPart = elapsedTime - integerPart; 
-        
-        if (elapsedTime + 1/75 > Math.ceil(elapsedTime)) {
+
+        const integerPart = Math.trunc(elapsedTime + 1 / 75);
+        const decimalPart = elapsedTime - integerPart;
+
+        if (elapsedTime + 1 / 75 > Math.ceil(elapsedTime)) {
             timesIncreased = 0;
         }
 
-        if ( 
-            ((decimalPart) > (1/(timesInASecond + 1) * timesIncreased)) && 
-            (elapsedTime <= time) && 
-            (calculateResultantVector(ballVelocity) < (2 * startVelocity)) 
+        if (
+            ((decimalPart) > (1 / (timesInASecond + 1) * timesIncreased)) &&
+            (elapsedTime <= time) &&
+            (calculateResultantVector(ballVelocity) < (2 * startVelocity))
         ) {
             ballVelocity.multiplyScalar(multiplyFactor)
 
             ballPosition.add(ballVelocity);
             ball.position.copy(ballPosition);
-   
-            timesIncreased++; 
+
+            timesIncreased++;
         } else {
             ballPosition.add(ballVelocity);
-            ball.position.copy(ballPosition);        
-        }    
+            ball.position.copy(ballPosition);
+        }
 
-        elapsedTime += 1/75;
+        elapsedTime += 1 / 75;
     }
 
     if (!gameStart && !gameFinish) {
         initialPositioning();
     } else {
-        if (elapsedTime < time){
+        if (elapsedTime < time) {
             accelerateMovement();
         } else {
             defaultMovement();
@@ -70,41 +70,53 @@ export const aditionalBallMovementHandler = (aditionalBall, aditionalBallPositio
 
     const accelerateMovement = () => {
         const timesInASecond = 4;
-    
+
         if (!gameRunning) {
             return;
         }
-       
-        const integerPart = Math.trunc(elapsedTime + 1/75);
-        const decimalPart = elapsedTime - integerPart; 
-        
-        if (elapsedTime + 1/75 > Math.ceil(elapsedTime)) {
+
+        const integerPart = Math.trunc(elapsedTime + 1 / 75);
+        const decimalPart = elapsedTime - integerPart;
+
+        if (elapsedTime + 1 / 75 > Math.ceil(elapsedTime)) {
             timesIncreased = 0;
         }
 
-        if ( 
-            ((decimalPart) > (1/(timesInASecond + 1) * timesIncreased)) && 
-            (elapsedTime <= time) && 
-            (calculateResultantVector(aditionalBallVelocity) < (2 * startVelocity)) 
+        if (
+            ((decimalPart) > (1 / (timesInASecond + 1) * timesIncreased)) &&
+            (elapsedTime <= time) &&
+            (calculateResultantVector(aditionalBallVelocity) < (2 * startVelocity))
         ) {
-            aditionalBallVelocity.multiplyScalar(multiplyFactor)
+            for (let i = 0; i < aditionalBall.length; i++) {
+                if (aditionalBall[i] != null && aditionalBallPosition[i] != null && aditionalBallVelocity[i] != null) {
+                    aditionalBallVelocity[i].multiplyScalar(multiplyFactor)
 
-            aditionalBallPosition.add(aditionalBallVelocity);
-            aditionalBall.position.copy(aditionalBallPosition);
-   
-            timesIncreased++; 
+                    aditionalBallPosition[i].add(aditionalBallVelocity[i]);
+                    aditionalBall[i].position.copy(aditionalBallPosition[i]);
+
+                    timesIncreased++;
+                }
+            }
         } else {
-            aditionalBallPosition.add(aditionalBallVelocity);
-            aditionalBall.position.copy(aditionalBallPosition);        
-        }    
+            for (let i = 0; i < aditionalBall.length; i++) {
+                if (aditionalBall[i] != null && aditionalBallPosition[i] != null && aditionalBallVelocity[i] != null) {
+                    aditionalBallPosition[i].add(aditionalBallVelocity[i]);
+                    aditionalBall[i].position.copy(aditionalBallPosition[i]);
+                }
+            }
+        }
 
-        elapsedTime += 1/75;
+        elapsedTime += 1 / 75;
     }
 
     const aditionalMovement = () => {
         if (gameRunning) {
-            aditionalBallPosition.add(aditionalBallVelocity);
-            aditionalBall.position.copy(aditionalBallPosition);
+            for (let i = 0; i < aditionalBall.length; i++) {
+                if (aditionalBall[i] != null && aditionalBallPosition[i] != null && aditionalBallVelocity[i] != null) {
+                    aditionalBallPosition[i].add(aditionalBallVelocity[i]);
+                    aditionalBall[i].position.copy(aditionalBallPosition[i]);
+                }
+            }
         }
     }
 
