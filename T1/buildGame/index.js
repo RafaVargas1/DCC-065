@@ -4,10 +4,11 @@ import { CSG } from "../../libs/other/CSGMesh.js";
 const lambertRedMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
 const lambertGreyMaterial = new THREE.MeshLambertMaterial({ color: 0x999999 });
 const lambertBlueMaterial = new THREE.MeshLambertMaterial({ color: 0x0000ff });
-const lambertOrangeMaterial = new THREE.MeshLambertMaterial({ color: 0xffa500 });
+const lambertOrangeMaterial = new THREE.MeshLambertMaterial({ color: 0xff8c00 });
 const lambertPinkMaterial = new THREE.MeshLambertMaterial({ color: 0xff00f7 });
 const lambertGreenMaterial = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
-const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+const lambertYellowMaterial = new THREE.MeshLambertMaterial({ color: 0xeeff00 });
+const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, shininess: "200", specular: "rgb(255, 255, 255)" });
 
 const wallThickness = 0.5;
 const brickHeight = 0.6;
@@ -43,6 +44,21 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
         ['O', 'R', 'P', 'G', '', 'C', 'B', 'G', 'O'],
         ['R', 'O', 'G', 'B', '', 'O', 'G', 'P', 'R'],
         ['P', 'G', 'O', 'C', '', 'G', 'O', 'R', 'P']
+      ]
+      break;
+    case 3:
+      bricks = [
+        ['B', '', 'R', '', 'G', '', 'G', '', 'R', '', 'B'],
+        ['B', '', 'R', '', 'G', '', 'G', '', 'R', '', 'B'],
+        ['B', '', 'R', '', 'G', '', 'G', '', 'R', '', 'B'],
+        ['B', '', 'Y', 'O', 'Y', 'O', 'Y', 'O', 'Y', '', 'B'],
+        ['B', '', 'R', '', 'G', '', 'G', '', 'R', '', 'B'],
+        ['B', '', 'R', '', 'G', '', 'G', '', 'R', '', 'B'],
+        ['B', '', 'R', '', 'G', '', 'G', '', 'R', '', 'B'],
+        ['B', '', 'R', '', 'G', '', 'G', '', 'R', '', 'B'],
+        ['B', '', 'R', '', 'G', '', 'G', '', 'R', '', 'B'],
+        ['O', '', 'Y', '', 'Y', '', 'Y', '', 'Y', '', 'O'],
+        ['B', '', 'R', '', 'G', '', 'G', '', 'R', '', 'B']
       ]
       break;
   }
@@ -85,13 +101,20 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
         case 'G':
           material = lambertGreenMaterial;
           break;
+        case 'Y':
+          material = lambertYellowMaterial;
+          break;
       }
 
       if (brick != "") {
         brick = new THREE.Mesh(brickGeometry, material);
 
       if (material === lambertGreyMaterial) {
-        brick.specialType = true;
+        brick.doubleHit = true;
+      }
+
+      if (material === lambertYellowMaterial) {
+        brick.indestructible = true;
       }
 
       if (brick && material) {
@@ -129,6 +152,8 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
     baseScenario.add(ball);
 
     ball.castShadow = true;
+
+    ball.ignoreColision = false;
 
     return ball;
   };

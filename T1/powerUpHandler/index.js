@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export const generatePowerUp = (brick, brickWidth, baseScenario) => {
+export const generatePowerUp = (brick, brickWidth, baseScenario, powerUpType) => {
     const brickHeight = 0.8;
 
     const powerUpBackgroundGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
@@ -19,6 +19,8 @@ export const generatePowerUp = (brick, brickWidth, baseScenario) => {
     powerUpBackground.add(powerUpSymbol);
 
     powerUpSymbol.position.copy(new THREE.Vector3(0, 0, 0.5));
+
+    powerUpBackground.powerUpType = powerUpType;
 
     baseScenario.add(powerUpBackground);
 
@@ -39,7 +41,7 @@ export const removePowerUp = (powerUp, powerUpPosition, baseScenario, gameWidth,
     return { powerUpAvailable, powerUp, powerUpPosition };
 }
 
-export const pickUpPowerUp = (powerUp, powerUpPosition, hitter, baseScenario, ballPosition, ballVelocity, aditionalBall, aditionalBallPosition, aditionalBallVelocity) => {
+export const pickUpPowerUp = (powerUp, powerUpPosition, hitter, baseScenario, ballPosition, ballVelocity, aditionalBall, aditionalBallPosition, aditionalBallVelocity, ball) => {
     if (powerUpPosition != null && powerUp != null) {
         const hitterPosition = hitter.position;
 
@@ -49,37 +51,51 @@ export const pickUpPowerUp = (powerUp, powerUpPosition, hitter, baseScenario, ba
         if (rightX && rightY && powerUp.name != "picked") {
             baseScenario.remove(powerUp);
             powerUp.name = "picked";
-            aditionalBall = activatePowerUp(ballPosition, baseScenario);
-            aditionalBallPosition = new THREE.Vector3(ballPosition.x >= 0 ? ballPosition.x - 1.5 : ballPosition.x + 1.5, ballPosition.y, ballPosition.z);
-            aditionalBallVelocity = ballVelocity.reflect(new THREE.Vector3(1, 0, 0));
+
+            switch (powerUp.powerUpType) {
+                case "aditionalBall":
+                    aditionalBall = activateAditionalBall(ballPosition, baseScenario);
+                    aditionalBallPosition = [aditionalBall[0].position, aditionalBall[1].position];
+                    aditionalBallVelocity = [new THREE.Vector3(ballVelocity.x - 0.5, ballVelocity.y, ballVelocity.z), new THREE.Vector3(ballVelocity.x + 0.5, ballVelocity.y, ballVelocity.z)];
+                    break;
+                case "ignoreColision":
+                    const phongRedMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: "200", specular: "rgb(255, 255, 255)" });
+                    ball.material = phongRedMaterial;
+                    ball.ignoreColision = true;
+                    break;
+            }
 
             powerUp = null;
             powerUpPosition = null;
         }
     }
 
-    return { aditionalBall, aditionalBallPosition, aditionalBallVelocity, powerUp, powerUpPosition };
+    return { aditionalBall, aditionalBallPosition, aditionalBallVelocity, powerUp, powerUpPosition, ball };
 }
 
-const activatePowerUp = (ballPosition, baseScenario) => {
+const activateAditionalBall = (ballPosition, baseScenario) => {
     const ballGeometry = new THREE.SphereGeometry(0.2);
-    const phongYellowMaterial = new THREE.MeshPhongMaterial({ color: 0xffff00 });
+    const phongYellowMaterial = new THREE.MeshPhongMaterial({ color: 0xffff00, shininess: "200", specular: "rgb(255, 255, 255)" });
 
-    const aditionalBall = new THREE.Mesh(ballGeometry, phongYellowMaterial);
+    let aditionalBall = [];
 
-    aditionalBall.position.copy(ballPosition);
+    for (let i = 0; i < 2; i++) {
+        aditionalBall[i] = new THREE.Mesh(ballGeometry, phongYellowMaterial);
 
-    aditionalBall.castShadow = true;
+        aditionalBall[i].position.copy(ballPosition);
 
-    baseScenario.add(aditionalBall);
+        aditionalBall[i].castShadow = true;
+
+        baseScenario.add(aditionalBall[i]);
+    }
 
     return aditionalBall;
 }
 
-export const checkPowerUp = (aditionalBall, powerUp) => {
+export const checkPowerUp = (aditionalBall, powerUp, ball) => {
     let powerUpAvailable;
 
-    if (aditionalBall != null || powerUp != null) {
+    if (aditionalBall != null || powerUp != null || ball.ignoreColision) {
         powerUpAvailable = false;
     } else {
         powerUpAvailable = true;

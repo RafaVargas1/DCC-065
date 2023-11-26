@@ -24,22 +24,9 @@ import { powerUpMovement, removePowerUp, pickUpPowerUp, checkPowerUp } from "./p
 const startVelocity = 0.15;
 const time = 15;
 let resultantVelocity = .125;
-const multiplyFactor = Math.pow(2, 1/(4*time));
+const multiplyFactor = Math.pow(2, 1 / (4 * time));
 let elapsedTime = 0;
 let timesIncreased = 1;
-
-let speedInfoBox = null;
-
-const handleTextBallVelocity = () => {    
-  if (speedInfoBox)
-    speedInfoBox.infoBox.remove()
-
-  speedInfoBox = new InfoBox();
-
-  const textBallVelocity = "Velocidade " + resultantVelocity;
-  speedInfoBox.add(textBallVelocity)
-  speedInfoBox.show();
-}
 
 const scene = new THREE.Scene();
 
@@ -100,6 +87,8 @@ window.addEventListener(
   () => {
     if (actualStage == 1) {
       actualStage = 2;
+    } else if (actualStage == 2) {
+      actualStage = 3;
     } else {
       actualStage = 1;
     };
@@ -133,7 +122,23 @@ let ball,
   powerUpPosition,
   aditionalBallPosition,
   aditionalBallVelocity,
-  colissionDetected;
+  colissionDetected,
+  mustCheckIgnoreColision,
+  lifes,
+  activeScreen = true;
+
+let startScreen = document.getElementById("start-screen");
+let endScreen = document.getElementById("end-screen");
+let button = document.getElementById("start-button");
+
+button.addEventListener("click", () => { onButtonPressed(startScreen) });
+
+const onButtonPressed = (screen) => {
+  screen.remove();
+  setTimeout(() => {
+    activeScreen = false;
+  }, 500);
+}
 
 const initializeGame = (mustReset = false) => {
   let components;
@@ -164,12 +169,14 @@ const initializeGame = (mustReset = false) => {
   aditionalBallPosition = null;
   aditionalBallVelocity = null;
   colissionDetected = false;
+  mustCheckIgnoreColision = true;
+  lifes = 5;
 };
 
 initializeGame();
 
 const onMouseClick = () => {
-  if (!gameRunning && !gameStart && !gameFinish) {
+  if (!gameRunning && !gameStart && !gameFinish && !activeScreen) {
     elapsedTime = 0;
     gameStart = true;
     gameRunning = true;
@@ -187,11 +194,87 @@ const resetColission = () => {
   }
 }
 
+const checkIgnoreColision = () => {
+  if (ball.ignoreColision && mustCheckIgnoreColision) {
+    mustCheckIgnoreColision = false;
+    setTimeout(() => {
+      ball.ignoreColision = false;
+      ball.material = new THREE.MeshPhongMaterial({ color: 0x0000ff, shininess: "200", specular: "rgb(255, 255, 255)" });
+      mustCheckIgnoreColision = true;
+    }, 7000);
+  }
+}
+
+let lifeInfoBox = null;
+let speedInfoBox = null;
+
+const handleTextLife = () => {
+  if (lifeInfoBox) {
+    lifeInfoBox.infoBox.remove();
+  }
+
+  if (!activeScreen) {
+    lifeInfoBox = new InfoBox(0, 1, 1, 0);
+
+    let textLife = "Vidas: ";
+
+    for (let i = 1; i < lifes + 1; i++) {
+      textLife += "♡";
+
+      if (i < lifes) {
+        textLife += " ";
+      }
+    }
+
+    lifeInfoBox.add(textLife);
+    lifeInfoBox.show();
+  }
+}
+
+const handleTextBallVelocity = () => {
+  if (speedInfoBox) {
+    speedInfoBox.infoBox.remove();
+  }
+
+  if (!activeScreen) {
+    speedInfoBox = new InfoBox();
+
+    const textBallVelocity = "Velocidade: " + resultantVelocity;
+
+    speedInfoBox.add(textBallVelocity)
+    speedInfoBox.show();
+  }
+}
+
+const checkReset = () => {
+  if (lifes == 0) {
+    while (backgroundContent.children.length > 0) {
+      const object = backgroundContent.children[0];
+      backgroundContent.remove(object);
+    }
+    window.dispatchEvent(mustInitialize);
+    gameRunning = false;
+  }
+}
+
+const checkEnd = () => {
+  if (!gameStart && !gameRunning && gameFinish) {
+    endScreen.style.setProperty("display", "flex");
+    activeScreen = true;
+  }
+}
+
 const render = () => {
   requestAnimationFrame(render);
 
-  ({ powerUpAvailable } = checkPowerUp(aditionalBall, powerUp));
-  ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity, powerUp, powerUpPosition } = pickUpPowerUp(
+  checkEnd();
+
+  checkReset();
+
+  checkIgnoreColision();
+
+  ({ powerUpAvailable } = checkPowerUp(aditionalBall, powerUp, ball));
+  ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity, powerUp, powerUpPosition, ball } = pickUpPowerUp(
     powerUp,
     powerUpPosition,
     hitter,
@@ -200,7 +283,8 @@ const render = () => {
     ballVelocity,
     aditionalBall,
     aditionalBallPosition,
-    aditionalBallVelocity
+    aditionalBallVelocity,
+    ball
   ));
   ({ powerUpAvailable, powerUp, powerUpPosition } = removePowerUp(
     powerUp,
@@ -252,19 +336,17 @@ const render = () => {
     aditionalBall,
     aditionalBallPosition,
     aditionalBallVelocity,
-    gameRunning, 
-    time, 
-    elapsedTime, 
-    multiplyFactor, 
-    startVelocity, 
+    gameRunning,
+    time,
+    elapsedTime,
+    multiplyFactor,
+    startVelocity,
     timesIncreased
   ));
 
   ({ ballVelocity } = wallColisionHandler(ball, wallsArray, ballVelocity));
-  ({ aditionalBallVelocity } = aditionalWallColisionHandler(aditionalBall, wallsArray, aditionalBallVelocity));
 
   ({ ballVelocity, colissionDetected } = hitterColisionHandler(ball, ballVelocity, hitter, colissionDetected));
-  ({ aditionalBallVelocity, colissionDetected } = aditionalHitterColisionHandler(aditionalBall, aditionalBallVelocity, hitter, colissionDetected));
 
   ({
     ballVelocity,
@@ -286,6 +368,33 @@ const render = () => {
     powerUpPosition
   ));
 
+  ({
+    ballVelocity,
+    gameRunning,
+    gameStart,
+    aditionalBall,
+    aditionalBallPosition,
+    aditionalBallVelocity,
+    mustCheckIgnoreColision,
+    lifes
+  } = floorColisionHandler(
+    ball,
+    ballVelocity,
+    gameWidth,
+    gameRunning,
+    hitter,
+    gameStart,
+    aditionalBall,
+    aditionalBallPosition,
+    aditionalBallVelocity,
+    backgroundContent,
+    mustCheckIgnoreColision,
+    lifes
+  ));
+
+  ({ aditionalBallVelocity } = aditionalWallColisionHandler(aditionalBall, wallsArray, aditionalBallVelocity));
+
+  ({ aditionalBallVelocity, colissionDetected } = aditionalHitterColisionHandler(aditionalBall, aditionalBallVelocity, hitter, colissionDetected));
 
   ({
     aditionalBallVelocity,
@@ -302,32 +411,10 @@ const render = () => {
     powerUpAvailable,
     brickCounter,
     hadColission,
-    brickWidth,
     powerUp,
     powerUpPosition
   ));
 
-  ({
-    ballVelocity,
-    gameRunning,
-    gameStart,
-    aditionalBall,
-    aditionalBallPosition,
-    aditionalBallVelocity
-  } = floorColisionHandler(
-    ball,
-    ballVelocity,
-    gameWidth,
-    gameRunning,
-    hitter,
-    gameStart,
-    aditionalBall,
-    aditionalBallPosition,
-    aditionalBallVelocity,
-    backgroundContent
-  ));
-
-  
   ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity } = aditionalFloorColisionHandler(
     aditionalBall,
     aditionalBallPosition,
@@ -338,7 +425,9 @@ const render = () => {
 
   handleTextBallVelocity();
 
-  resultantVelocity = Math.sqrt(Math.pow(ballVelocity.y,2) + Math.pow(ballVelocity.x, 2)).toFixed(3);
+  handleTextLife();
+
+  resultantVelocity = Math.sqrt(Math.pow(ballVelocity.y, 2) + Math.pow(ballVelocity.x, 2)).toFixed(3);
 
   resetColission();
 
