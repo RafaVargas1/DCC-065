@@ -98,12 +98,13 @@ window.addEventListener(
   },
   false
 );
+const initialPositionCamera = new THREE.Vector3(0, -10, 33);
+let camera = perspectiveCameraInitialization(screenWidth, screenHeight, initialPositionCamera);
 
-const camera = perspectiveCameraInitialization(screenWidth, screenHeight);
-const controls = new OrbitControls(camera, renderer.domElement);
+let controls = new OrbitControls(camera, renderer.domElement);
 
-controls.enabled = false;
-controls.enableZoom = false;
+controls.enabled = false
+controls.enableZoom = false
 
 const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, screenHeight, gameWidth, scene);
 
@@ -151,7 +152,7 @@ const initializeGame = (mustReset = false) => {
   if (mustReset) {
     components = buildGame(backgroundContent, gameWidth, 1);
   } else {
-    components = buildGame(backgroundContent, gameWidth, 3);
+    components = buildGame(backgroundContent, gameWidth, 1);
   }
 
   ball = components.ball;
@@ -306,13 +307,17 @@ const render = () => {
     gameRunning
   ));
 
-  ({ gameRunning } = keyboardUpdate(
+  ({ gameRunning, camera, controls } = keyboardUpdate(
     canvas,
     gameRunning,
     gameStart,
     backgroundContent,
     mustInitialize,
-    changeStage
+    changeStage,
+    camera,
+    initialPositionCamera,
+    controls,
+    renderer
   ));
 
   ({ gameRunning, gameStart, gameFinish } = checkGame(

@@ -1,4 +1,6 @@
 import KeyboardState from '../../../libs/util/KeyboardState.js'
+import { perspectiveCameraInitialization } from '../PerspectiveCamera/index.js'
+import { OrbitControls } from '../../../build/jsm/controls/OrbitControls.js'
 
 function toggleFullscreen(canvas) {
     if (!document.fullscreenElement) {
@@ -31,9 +33,14 @@ function reset(baseScenario) {
     }
 }
 
+const handleOrbitContorol = (controls) => {
+    controls.enabled = !controls.enabled;
+    controls.enableZoom = !controls.enableZoom;  
+  }
+
 var keyboard = new KeyboardState();
 
-export const keyboardUpdate = (canvas, gameRunning, gameStart, baseScenario, mustInitialize, changeStage) => {   
+export const keyboardUpdate = (canvas, gameRunning, gameStart, baseScenario, mustInitialize, changeStage, camera, cameraPosition, controls, renderer) => {   
     keyboard.update();
 
     if (keyboard.down("enter")) {
@@ -56,5 +63,23 @@ export const keyboardUpdate = (canvas, gameRunning, gameStart, baseScenario, mus
         gameRunning = false;
     }
 
-    return { gameRunning };
+    if (keyboard.down("O")){
+        handleOrbitContorol(controls);
+        let auxIsEnableOrbitControl = controls.enableZoom;
+
+        gameRunning = !auxIsEnableOrbitControl;
+
+        if (!auxIsEnableOrbitControl) { 
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            camera = perspectiveCameraInitialization(screenWidth, screenHeight, cameraPosition)
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableZoom = auxIsEnableOrbitControl;
+            controls.enabled = auxIsEnableOrbitControl;
+        }
+
+    }
+
+    return { gameRunning, camera, controls };
 }
