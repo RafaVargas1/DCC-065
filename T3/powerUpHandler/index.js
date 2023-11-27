@@ -1,30 +1,31 @@
 import * as THREE from "three";
 
+const textureLoader = new THREE.TextureLoader();
+
 export const generatePowerUp = (brick, brickWidth, baseScenario, powerUpType) => {
     const brickHeight = 0.8;
 
-    const powerUpBackgroundGeometry = new THREE.BoxGeometry(brickWidth, brickHeight, 1);
-    const powerUpSymbolGeometry = new THREE.SphereGeometry(0.2);
+    const path = "../../assets/textures/" + powerUpType + ".png";
 
-    const lambertYellowMaterial = new THREE.MeshLambertMaterial({ color: 0xffff00 });
-    const lambertRedMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+    const texture = textureLoader.load(path);
 
-    const powerUpBackground = new THREE.Mesh(powerUpBackgroundGeometry, lambertRedMaterial);
-    const powerUpSymbol = new THREE.Mesh(powerUpSymbolGeometry, lambertYellowMaterial);
+    const powerUpGeometry = new THREE.CapsuleGeometry(brickHeight / 2, brickWidth / 2);
+    const powerUpMaterial = new THREE.MeshLambertMaterial();
+    powerUpMaterial.map = texture;
 
-    powerUpBackground.position.copy(brick.position);
+    const powerUp = new THREE.Mesh(powerUpGeometry, powerUpMaterial);
 
-    powerUpBackground.castShadow = true;
+    powerUp.position.copy(brick.position);
 
-    powerUpBackground.add(powerUpSymbol);
+    powerUp.rotateZ(Math.PI / 2);
 
-    powerUpSymbol.position.copy(new THREE.Vector3(0, 0, 0.5));
+    powerUp.castShadow = true;
 
-    powerUpBackground.powerUpType = powerUpType;
+    powerUp.powerUpType = powerUpType;
 
-    baseScenario.add(powerUpBackground);
+    baseScenario.add(powerUp);
 
-    return { powerUpBackground };
+    return powerUp;
 }
 
 export const removePowerUp = (powerUp, powerUpPosition, baseScenario, gameWidth, powerUpAvailable) => {
@@ -45,8 +46,8 @@ export const pickUpPowerUp = (powerUp, powerUpPosition, hitter, baseScenario, ba
     if (powerUpPosition != null && powerUp != null) {
         const hitterPosition = hitter.position;
 
-        const rightX = powerUpPosition.x + 0.6 >= hitterPosition.x - ((0.225 * 14) / 2) && powerUpPosition.x - 0.6 <= hitterPosition.x + ((0.225 * 14) / 2);
-        const rightY = powerUpPosition.y - 0.4 <= hitterPosition.y + ((0.225 * 14) / 2) && powerUpPosition.y + 0.4 >= (hitterPosition.y + ((0.225 * 14) / 2)) - 0.4;
+        const rightX = powerUpPosition.x + 0.3 >= hitterPosition.x - ((0.225 * 14) / 2) && powerUpPosition.x - 0.3 <= hitterPosition.x + ((0.225 * 14) / 2);
+        const rightY = powerUpPosition.y + 0.2 <= hitterPosition.y + ((0.225 * 14) / 2) && powerUpPosition.y + 0.2 >= (hitterPosition.y + ((0.225 * 14) / 2)) - 0.4;
 
         if (rightX && rightY && powerUp.name != "picked") {
             baseScenario.remove(powerUp);
@@ -108,6 +109,8 @@ export const powerUpMovement = (powerUp, powerUpPosition, gameRunning) => {
     if (gameRunning && powerUp != null && powerUpPosition != null) {
         powerUpPosition.add(new THREE.Vector3(0, -0.1, 0));
         powerUp.position.copy(powerUpPosition);
+
+        powerUp.rotateY(Math.PI / 18);
     }
 
     return { powerUpPosition };

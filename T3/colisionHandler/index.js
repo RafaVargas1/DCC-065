@@ -200,7 +200,10 @@ export const brickColisionHandler = (
   hadColission,
   brickWidth,
   powerUp,
-  powerUpPosition
+  powerUpPosition,
+  brickColision,
+  doubleHitBrickColision,
+  powerUpBrickColision
 ) => {
   const calculateReflection = (side) => {
     let normal;
@@ -359,25 +362,51 @@ export const brickColisionHandler = (
           mustBroke = true;
         }
 
+        if (mustBroke && brick.indestructible) {
+          doubleHitBrickColision.play();
+          doubleHitBrickColision.isPlaying = false;
+        }
+
         if (mustBroke && !brick.indestructible) {
           hadColission = true;
           if (brick.doubleHit) {
             if (brick.name == "hitted") {
               baseScenario.remove(brick);
               brick.name = "broken";
+              if (ball.ignoreColision) {
+                powerUpBrickColision.play();
+                powerUpBrickColision.isPlaying = false;
+              } else {
+                brickColision.play();
+                brickColision.isPlaying = false;
+              }
             } else {
               brick.name = "hitted";
               brick.material = lambertNewGreyMaterial;
+              if (ball.ignoreColision) {
+                powerUpBrickColision.play();
+                powerUpBrickColision.isPlaying = false;
+              } else {
+                doubleHitBrickColision.play();
+                doubleHitBrickColision.isPlaying = false;
+              }
             }
           } else {
             baseScenario.remove(brick);
             brick.name = "broken";
+            if (ball.ignoreColision) {
+              powerUpBrickColision.play();
+              powerUpBrickColision.isPlaying = false;
+            } else {
+              brickColision.play();
+              brickColision.isPlaying = false;
+            }
           }
 
           if (powerUpAvailable && brick.name == "broken") {
             brickCounter++;
 
-            if (brickCounter == 1) {
+            if (brickCounter == 10) {
               powerUpAvailable = false;
               brickCounter = 0;
 
@@ -393,7 +422,7 @@ export const brickColisionHandler = (
                   break;
               }
 
-              powerUp = generatePowerUp(brick, brickWidth, baseScenario, "ignoreColision").powerUpBackground;
+              powerUp = generatePowerUp(brick, brickWidth, baseScenario, powerUpType);
               powerUpPosition = powerUp.position;
             }
           }
@@ -418,7 +447,9 @@ export const aditionalBrickColisionHandler = (
   brickCounter,
   hadColission,
   powerUp,
-  powerUpPosition
+  powerUpPosition,
+  brickColision,
+  doubleHitBrickColision
 ) => {
   const calculateReflection = (side, index) => {
     let normal;
@@ -567,18 +598,29 @@ export const aditionalBrickColisionHandler = (
           mustBroke = true;
         }
 
+        if (mustBroke && brick.indestructible) {
+          doubleHitBrickColision.play();
+          doubleHitBrickColision.isPlaying = false;
+        }
+
         if (mustBroke && !brick.indestructible) {
           if (brick.doubleHit) {
             if (brick.name == "hitted") {
               baseScenario.remove(brick);
               brick.name = "broken";
+              brickColision.play();
+              brickColision.isPlaying = false;
             } else {
               brick.name = "hitted";
               brick.material = lambertNewGreyMaterial;
+              doubleHitBrickColision.play();
+              doubleHitBrickColision.isPlaying = false;
             }
           } else {
             baseScenario.remove(brick);
             brick.name = "broken";
+            brickColision.play();
+            brickColision.isPlaying = false;
           }
         }
       });
@@ -598,7 +640,7 @@ export const aditionalBrickColisionHandler = (
   return { aditionalBallVelocity, powerUpAvailable, brickCounter, hadColission, powerUp, powerUpPosition };
 };
 
-export const hitterColisionHandler = (ball, ballVelocity, hitter, colissionDetected) => {
+export const hitterColisionHandler = (ball, ballVelocity, hitter, colissionDetected, hitterColision) => {
   const hitterSize = 0.225 * 14;
 
   const hitterGeometry = new THREE.BoxGeometry(hitterSize, 0.25, 1);
@@ -704,6 +746,8 @@ export const hitterColisionHandler = (ball, ballVelocity, hitter, colissionDetec
       const { normalX, normalY, angleAnalysis } = calculateNormal();
       const normal = new THREE.Vector3(normalX, normalY, 0);
       calculateHitterReflection(normal, angleAnalysis);
+      hitterColision.play();
+      hitterColision.isPlaying = false;
     }
   };
 
@@ -714,7 +758,7 @@ export const hitterColisionHandler = (ball, ballVelocity, hitter, colissionDetec
   return { ballVelocity, colissionDetected };
 };
 
-export const aditionalHitterColisionHandler = (ball, ballVelocity, hitter, colissionDetected) => {
+export const aditionalHitterColisionHandler = (ball, ballVelocity, hitter, colissionDetected, hitterColision) => {
   const hitterSize = 0.225 * 14;
 
   const hitterGeometry = new THREE.BoxGeometry(hitterSize, 0.25, 1);
@@ -820,6 +864,8 @@ export const aditionalHitterColisionHandler = (ball, ballVelocity, hitter, colis
       const { normalX, normalY, angleAnalysis } = calculateNormal(index);
       const normal = new THREE.Vector3(normalX, normalY, 0);
       calculateHitterReflection(normal, angleAnalysis, index);
+      hitterColision.play();
+      hitterColision.isPlaying = false;
     }
   };
 

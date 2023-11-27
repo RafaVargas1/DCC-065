@@ -38,7 +38,20 @@ var list = {
 				"Main Options": "html/textureOptionsInfo",
 				"Textured External Objects": "html/textureExternalObjectsInfo",
             "MultiTextured Cube": "html/texturedMultiMapInfo",
+				"UV Mapping":"html/textureUVMappingInfo",            
 			},
+			"Textures - Advanced":  {
+				"Skybox 1": "html/textureAdvancedSkyboxCubeInfo",
+				"Skybox 2": "html/textureAdvancedSkyboxEquirectangularInfo",            
+				"Environment mapping 1": "html/textureAdvancedEnvMapCubeInfo",
+				"Environment mapping 2": "html/textureAdvancedEnvMapEquirectangularInfo",				
+				"Normal mapping": "html/textureAdvancedNormalMappingInfo",								
+				"Displacement mapping": "html/textureAdvancedDisplacementMappingInfo",            		
+			},         
+			"Textures - Extras":  {
+				"Transition": "html/textureExtraTransitionInfo",            
+            "Traversing": "html/textureExtraTraversingInfo",            
+			},         
 			"Realism":  {
 				"Ray Tracing 1": "html/raytracingExample1Info",
 				"Ray Tracing 2": "html/raytracingExample2Info",
@@ -68,15 +81,6 @@ var list = {
 			},
 		},
 		"Additional Examples":{
-			"Textures - Advanced":  {
-            "Traverse Textured Object": "html/textureExternalObjectsTraverseInfo",
-				"Texture Transition": "html/textureAdvancedTransitionInfo",            
-				"Environment mapping 1": "html/textureAdvancedCubeMapInfo",
-				"Environment mapping 2": "html/textureAdvancedEquirectangularMapInfo",				
-				"Normal mapping": "html/textureAdvancedNormalMappingInfo",								
-				"Displacement mapping": "html/textureAdvancedDisplacementMappingInfo",
-				"UV Mapping":"html/textureUVMappingInfo",            		
-			},
 			"Physics":  {
 				"Ammo - Vehicle": "html/ammoVehicleInfo",
 				"Ammo - Breakable Objects": "html/ammoBreakableObjectsInfo",

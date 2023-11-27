@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
-import { initRenderer, onWindowResize, InfoBox } from "../libs/util/util.js";
+import { initRenderer, onWindowResize } from "../libs/util/util.js";
+import { InfoBox } from "./Utils/utils.js";
 import { perspectiveCameraInitialization } from "./Utils/PerspectiveCamera/index.js";
 import { lightInitialization } from "./Utils/Light/index.js";
 import { setupBackground } from './setupBackground/index.js';
@@ -8,6 +9,7 @@ import { buildGame } from './buildGame/index.js';
 import { checkGame } from "./checkGame/index.js";
 import { onMouseMove } from "./hitterMovement/index.js";
 import { keyboardUpdate } from "./Utils/Keyboard/index.js";
+import { setupAudio } from "./Utils/Audio/index.js";
 import { ballMovementHandler, aditionalBallMovementHandler } from "./ballHandler/index.js";
 import {
   wallColisionHandler,
@@ -34,6 +36,8 @@ const scene = new THREE.Scene();
 const renderer = initRenderer();
 
 const canvas = renderer.domElement;
+
+const listener = new THREE.AudioListener();
 
 const gameWidth = 14;
 const screenWidth = window.innerWidth;
@@ -101,6 +105,8 @@ window.addEventListener(
 const initialPositionCamera = new THREE.Vector3(0, -10, 33);
 let camera = perspectiveCameraInitialization(screenWidth, screenHeight, initialPositionCamera);
 
+camera.add(listener);
+
 let controls = new OrbitControls(camera, renderer.domElement);
 
 controls.enabled = false
@@ -137,6 +143,8 @@ let startScreen = document.getElementById("start-screen");
 let endScreen = document.getElementById("end-screen");
 let button = document.getElementById("start-button");
 
+const { hitterColision, brickColision, doubleHitBrickColision, powerUpBrickColision } = setupAudio(listener);
+
 button.addEventListener("click", () => { onButtonPressed(startScreen) });
 
 const onButtonPressed = (screen) => {
@@ -152,7 +160,7 @@ const initializeGame = (mustReset = false) => {
   if (mustReset) {
     components = buildGame(backgroundContent, gameWidth, 1);
   } else {
-    components = buildGame(backgroundContent, gameWidth, 1);
+    components = buildGame(backgroundContent, gameWidth, actualStage);
   }
 
   ball = components.ball;
@@ -187,6 +195,7 @@ const onMouseClick = () => {
     gameStart = true;
     gameRunning = true;
     ballVelocity = new THREE.Vector3(0, startVelocity, 0);
+    hitterColision.play();
   }
 };
 
@@ -359,7 +368,7 @@ const render = () => {
 
   ({ ballVelocity } = wallColisionHandler(ball, wallsArray, ballVelocity));
 
-  ({ ballVelocity, colissionDetected } = hitterColisionHandler(ball, ballVelocity, hitter, colissionDetected));
+  ({ ballVelocity, colissionDetected } = hitterColisionHandler(ball, ballVelocity, hitter, colissionDetected, hitterColision));
 
   ({
     ballVelocity,
@@ -378,7 +387,10 @@ const render = () => {
     hadColission,
     brickWidth,
     powerUp,
-    powerUpPosition
+    powerUpPosition,
+    brickColision,
+    doubleHitBrickColision,
+    powerUpBrickColision
   ));
 
   ({
@@ -407,7 +419,7 @@ const render = () => {
 
   ({ aditionalBallVelocity } = aditionalWallColisionHandler(aditionalBall, wallsArray, aditionalBallVelocity));
 
-  ({ aditionalBallVelocity, colissionDetected } = aditionalHitterColisionHandler(aditionalBall, aditionalBallVelocity, hitter, colissionDetected));
+  ({ aditionalBallVelocity, colissionDetected } = aditionalHitterColisionHandler(aditionalBall, aditionalBallVelocity, hitter, colissionDetected, hitterColision));
 
   ({
     aditionalBallVelocity,
@@ -425,7 +437,9 @@ const render = () => {
     brickCounter,
     hadColission,
     powerUp,
-    powerUpPosition
+    powerUpPosition,
+    brickColision,
+    doubleHitBrickColision
   ));
 
   ({ aditionalBall, aditionalBallPosition, aditionalBallVelocity } = aditionalFloorColisionHandler(
