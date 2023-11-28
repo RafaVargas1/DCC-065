@@ -23,7 +23,10 @@ import { powerUpMovement, removePowerUp, pickUpPowerUp, checkPowerUp } from "./p
 import { OrbitControls } from '../build/jsm/controls/OrbitControls.js'
 
 import { Buttons } from "../libs/other/buttons.js";
-var buttons = new Buttons(onButtonDown, onButtonUp);
+let buttons = new Buttons(onButtonDown, onButtonUp);
+
+import {DragControls} from '../build/jsm/controls/DragControls.js'
+
 
 const startVelocity = 0.15;
 const time = 15;
@@ -212,6 +215,9 @@ const initializeGame = (mustReset = false) => {
 };
 
 initializeGame();
+
+let dragControl = new DragControls(hitter, camera, renderer.domElement);
+dragControl.activate();
 
 const onMouseClick = () => {
   if (!gameRunning && !gameStart && !gameFinish && !activeScreen) {
