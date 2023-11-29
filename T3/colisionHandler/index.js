@@ -123,7 +123,7 @@ export const floorColisionHandler = (
       ballVelocity = new THREE.Vector3(0.0, 0.0, 0.0);
       gameRunning = false;
       gameStart = false;
-      hitter.position.copy(new THREE.Vector3(0.0, (1.775 * 14) / -2, 0.8));
+      hitter.position.copy(new THREE.Vector3(0.0, (3.1 * 14) / -2, 0.8));
       lifes--;
 
       if (aditionalBall != null) {
@@ -321,7 +321,7 @@ export const brickColisionHandler = (
           brick.name != "broken" &&
           topHit
         ) {
-          if (!ball.ignoreColision) {
+          if (!ball.ignoreColision || ball.indestructible) {
             calculateReflection("up");
           }
           mustBroke = true;
@@ -330,7 +330,7 @@ export const brickColisionHandler = (
           brick.name != "broken" &&
           bottomHit
         ) {
-          if (!ball.ignoreColision) {
+          if (!ball.ignoreColision || ball.indestructible) {
             calculateReflection("down");
           }
           mustBroke = true;
@@ -339,7 +339,7 @@ export const brickColisionHandler = (
           brick.name != "broken" &&
           leftHit
         ) {
-          if (!ball.ignoreColision) {
+          if (!ball.ignoreColision || ball.indestructible) {
             calculateReflection("left");
           }
           mustBroke = true;
@@ -348,7 +348,7 @@ export const brickColisionHandler = (
           brick.name != "broken" &&
           rightHit
         ) {
-          if (!ball.ignoreColision) {
+          if (!ball.ignoreColision || ball.indestructible) {
             calculateReflection("right");
           }
           mustBroke = true;
@@ -356,7 +356,7 @@ export const brickColisionHandler = (
           brickBox.intersectsSphere(sphere) &&
           brick.name != "broken"
         ) {
-          if (!ball.ignoreColision) {
+          if (!ball.ignoreColision || ball.indestructible) {
             calculateReflection("edge");
           }
           mustBroke = true;
@@ -641,233 +641,61 @@ export const aditionalBrickColisionHandler = (
 };
 
 export const hitterColisionHandler = (ball, ballVelocity, hitter, colissionDetected, hitterColision) => {
-  const hitterSize = 0.225 * 14;
-
-  const hitterGeometry = new THREE.BoxGeometry(hitterSize, 0.25, 1);
-  const lambertPinkMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
-
-  const hitterCenter = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-  const hitterLeftBorder = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-  const hitterRightBorder = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-  const hitterLeftCorner = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-  const hitterRightCorner = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-
-  hitterCenter.position.copy(hitter.position);
-  hitterCenter.position.y = hitter.position.y + 0.6;
-
-  hitterLeftBorder.position.copy(hitter.position);
-  hitterLeftBorder.position.y = hitter.position.y + 0.4;
-  hitterLeftBorder.position.x = hitter.position.x - 0.6;
-
-  hitterRightBorder.position.copy(hitter.position);
-  hitterRightBorder.position.y = hitter.position.y + 0.4;
-  hitterRightBorder.position.x = hitter.position.x + 0.6;
-
-  hitterLeftCorner.position.copy(hitter.position);
-  hitterLeftCorner.position.y = hitter.position.y + 0.5;
-  hitterLeftCorner.position.x = hitter.position.x - 0.3;
-
-  hitterRightCorner.position.copy(hitter.position);
-  hitterRightCorner.position.y = hitter.position.y + 0.5;
-  hitterRightCorner.position.x = hitter.position.x + 0.3;
-
-  const calculateNormal = () => {
-    let angle, angleAnalysis;
-
-    if (hitter.position.x > ball.position.x) {
-      const point = ball.position.x - hitter.position.x;
-
-      angle = (-240 + (((point + 1.575) * (90 + 240)) / 1.575));
-
-      angleAnalysis = "left";
-    }
-
-    if (hitter.position.x <= ball.position.x) {
-      const point = ball.position.x - hitter.position.x;
-
-      angle = (90 + ((point * -30) / 1.575));
-
-      angleAnalysis = "right";
-    }
-
-    let normalX = -Math.sin(angle);
-    let normalY = Math.cos(angle);
-
-    if (normalY < 0) {
-      normalX = normalX * -1;
-      normalY = normalY * -1;
-    }
-
-    return { normalX, normalY, angleAnalysis };
-  }
-
-  const calculateHitterReflection = (normal, angleAnalysis) => {
-    const incidentVector = ballVelocity;
-
-    const reflectionVector = incidentVector
-      .clone()
-      .sub(normal.clone().multiplyScalar(2 * incidentVector.dot(normal)));
-
-    if (reflectionVector.y < 0) {
-      reflectionVector.y = reflectionVector.y * -1;
-    }
-
-    if (angleAnalysis == "right") {
-      if (reflectionVector.x < 0) {
-        reflectionVector.x = reflectionVector.x * -1;
-      }
-    }
-
-    if (angleAnalysis == "left") {
-      if (reflectionVector.x > 0) {
-        reflectionVector.x = reflectionVector.x * -1;
-      }
-    }
-
-    ballVelocity = reflectionVector;
-  };
-
   const detectHitterColision = () => {
-    const sphere = new THREE.Sphere(ball.position, ballRadius);
+    const ballSphere = new THREE.Sphere(ball.position, ballRadius);
+    const hitterSphere = new THREE.Sphere(hitter.position, hitter.userData.radius);
 
-    const hitterCenterBox = new THREE.Box3().setFromObject(hitterCenter);
-    const hitterLeftBorderBox = new THREE.Box3().setFromObject(hitterLeftBorder);
-    const hitterRightBorderBox = new THREE.Box3().setFromObject(hitterRightBorder);
-    const hitterLeftCornerBox = new THREE.Box3().setFromObject(hitterLeftCorner);
-    const hitterRightCornerBox = new THREE.Box3().setFromObject(hitterLeftBorder);
+    const colisionBetweenSpheres = hitterSphere.intersectsSphere(ballSphere);
+    const rightX = (ball.position.x + ballRadius) > (hitter.position.x - hitter.userData.width) && (ball.position.x - ballRadius) < (hitter.position.x + hitter.userData.width);
+    const rightY = (ball.position.y + ballRadius) >= ((hitter.position.y + hitter.userData.radius) - hitter.userData.height);
 
-    if (
-      hitterCenterBox.intersectsSphere(sphere) ||
-      hitterLeftBorderBox.intersectsSphere(sphere) ||
-      hitterRightBorderBox.intersectsSphere(sphere) ||
-      hitterLeftCornerBox.intersectsSphere(sphere) ||
-      hitterRightCornerBox.intersectsSphere(sphere)
-    ) {
-      const { normalX, normalY, angleAnalysis } = calculateNormal();
-      const normal = new THREE.Vector3(normalX, normalY, 0);
-      calculateHitterReflection(normal, angleAnalysis);
+    const colisionWithinHitterSpace = colisionBetweenSpheres && rightX && rightY;
+
+    if (colisionWithinHitterSpace) {
+      const normal = ballSphere.center.clone().sub(hitterSphere.center).normalize();
+
+      const incidentVector = ballVelocity.clone();
+
+      const reflectionVector = incidentVector.reflect(normal);
+
+      ballVelocity.copy(new THREE.Vector3(reflectionVector.x, reflectionVector.y, 0));
+
       hitterColision.play();
       hitterColision.isPlaying = false;
     }
-  };
+  }
 
   if (ball != null && ballVelocity != null) {
     detectHitterColision();
   }
 
   return { ballVelocity, colissionDetected };
-};
+}
 
 export const aditionalHitterColisionHandler = (ball, ballVelocity, hitter, colissionDetected, hitterColision) => {
-  const hitterSize = 0.225 * 14;
-
-  const hitterGeometry = new THREE.BoxGeometry(hitterSize, 0.25, 1);
-  const lambertPinkMaterial = new THREE.MeshLambertMaterial({ color: 0xff00ff });
-
-  const hitterCenter = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-  const hitterLeftBorder = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-  const hitterRightBorder = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-  const hitterLeftCorner = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-  const hitterRightCorner = new THREE.Mesh(hitterGeometry, lambertPinkMaterial);
-
-  hitterCenter.position.copy(hitter.position);
-  hitterCenter.position.y = hitter.position.y + 0.6;
-
-  hitterLeftBorder.position.copy(hitter.position);
-  hitterLeftBorder.position.y = hitter.position.y + 0.4;
-  hitterLeftBorder.position.x = hitter.position.x - 0.6;
-
-  hitterRightBorder.position.copy(hitter.position);
-  hitterRightBorder.position.y = hitter.position.y + 0.4;
-  hitterRightBorder.position.x = hitter.position.x + 0.6;
-
-  hitterLeftCorner.position.copy(hitter.position);
-  hitterLeftCorner.position.y = hitter.position.y + 0.5;
-  hitterLeftCorner.position.x = hitter.position.x - 0.3;
-
-  hitterRightCorner.position.copy(hitter.position);
-  hitterRightCorner.position.y = hitter.position.y + 0.5;
-  hitterRightCorner.position.x = hitter.position.x + 0.3;
-
-  const calculateNormal = (index) => {
-    let angle, angleAnalysis;
-
-    if (hitter.position.x > ball[index].position.x) {
-      const point = ball[index].position.x - hitter.position.x;
-
-      angle = (-240 + (((point + 1.575) * (90 + 240)) / 1.575));
-
-      angleAnalysis = "left";
-    }
-
-    if (hitter.position.x <= ball[index].position.x) {
-      const point = ball[index].position.x - hitter.position.x;
-
-      angle = (90 + ((point * -30) / 1.575));
-
-      angleAnalysis = "right";
-    }
-
-    let normalX = -Math.sin(angle);
-    let normalY = Math.cos(angle);
-
-    if (normalY < 0) {
-      normalX = normalX * -1;
-      normalY = normalY * -1;
-    }
-
-    return { normalX, normalY, angleAnalysis };
-  }
-
-  const calculateHitterReflection = (normal, angleAnalysis, index) => {
-    const incidentVector = ballVelocity[index];
-
-    const reflectionVector = incidentVector
-      .clone()
-      .sub(normal.clone().multiplyScalar(2 * incidentVector.dot(normal)));
-
-    if (reflectionVector.y < 0) {
-      reflectionVector.y = reflectionVector.y * -1;
-    }
-
-    if (angleAnalysis == "right") {
-      if (reflectionVector.x < 0) {
-        reflectionVector.x = reflectionVector.x * -1;
-      }
-    }
-
-    if (angleAnalysis == "left") {
-      if (reflectionVector.x > 0) {
-        reflectionVector.x = reflectionVector.x * -1;
-      }
-    }
-
-    ballVelocity[index] = reflectionVector;
-  };
-
   const detectHitterColision = (index) => {
-    const sphere = new THREE.Sphere(ball[index].position, ballRadius);
+    const ballSphere = new THREE.Sphere(ball[index].position, ballRadius);
+    const hitterSphere = new THREE.Sphere(hitter.position, hitter.userData.radius);
 
-    const hitterCenterBox = new THREE.Box3().setFromObject(hitterCenter);
-    const hitterLeftBorderBox = new THREE.Box3().setFromObject(hitterLeftBorder);
-    const hitterRightBorderBox = new THREE.Box3().setFromObject(hitterRightBorder);
-    const hitterLeftCornerBox = new THREE.Box3().setFromObject(hitterLeftCorner);
-    const hitterRightCornerBox = new THREE.Box3().setFromObject(hitterLeftBorder);
+    const colisionBetweenSpheres = hitterSphere.intersectsSphere(ballSphere);
+    const rightX = (ball[index].position.x + ballRadius) > (hitter.position.x - hitter.userData.width) && (ball[index].position.x - ballRadius) < (hitter.position.x + hitter.userData.width);
+    const rightY = (ball[index].position.y + ballRadius) >= ((hitter.position.y + hitter.userData.radius) - hitter.userData.height);
 
-    if (
-      hitterCenterBox.intersectsSphere(sphere) ||
-      hitterLeftBorderBox.intersectsSphere(sphere) ||
-      hitterRightBorderBox.intersectsSphere(sphere) ||
-      hitterLeftCornerBox.intersectsSphere(sphere) ||
-      hitterRightCornerBox.intersectsSphere(sphere)
-    ) {
-      const { normalX, normalY, angleAnalysis } = calculateNormal(index);
-      const normal = new THREE.Vector3(normalX, normalY, 0);
-      calculateHitterReflection(normal, angleAnalysis, index);
+    const colisionWithinHitterSpace = colisionBetweenSpheres && rightX && rightY;
+
+    if (colisionWithinHitterSpace) {
+      const normal = ballSphere.center.clone().sub(hitterSphere.center).normalize();
+
+      const incidentVector = ballVelocity[index].clone();
+
+      const reflectionVector = incidentVector.reflect(normal);
+
+      ballVelocity[index].copy(new THREE.Vector3(reflectionVector.x, reflectionVector.y, 0));
+
       hitterColision.play();
       hitterColision.isPlaying = false;
     }
-  };
+  }
 
   if (ball != null && ballVelocity != null) {
     for (let i = 0; i < ball.length; i++) {
@@ -879,4 +707,4 @@ export const aditionalHitterColisionHandler = (ball, ballVelocity, hitter, colis
 
   const aditionalBallVelocity = ballVelocity
   return { aditionalBallVelocity, colissionDetected };
-};
+}

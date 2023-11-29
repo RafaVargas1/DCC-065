@@ -15,14 +15,14 @@ orbit = new OrbitControls(camera, renderer.domElement);
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
 export const buildHitter = () => {
-    const cylinderGeometry = new THREE.CylinderGeometry(1.5, 1.5, 0.8);
-    const boxGeometry = new THREE.BoxGeometry(2, 10, 10);
+    const cylinderGeometry = new THREE.CylinderGeometry(10, 10, 0.8);
+    const boxGeometry = new THREE.BoxGeometry(20, 0.8, 20);
     
     const cylinder = new THREE.Mesh(cylinderGeometry, material);
     const rectangle = new THREE.Mesh(boxGeometry, material);
     
     cylinder.position.copy(new THREE.Vector3(0, 0, 0));
-    rectangle.position.copy(new THREE.Vector3(1, 0, 0));
+    rectangle.position.copy(new THREE.Vector3(0, 0, 0.15));
     
     cylinder.matrixAutoUpdate = false;
     cylinder.updateMatrix();
@@ -32,7 +32,7 @@ export const buildHitter = () => {
     rectangle.updateMatrix();
     let rectangleCSG = CSG.fromMesh(rectangle);
     
-    let hitterCSG = cylinderCSG.intersect(rectangleCSG);
+    let hitterCSG = cylinderCSG.subtract(rectangleCSG);
     
     let hitter = CSG.toMesh(hitterCSG, new THREE.Matrix4());
     
@@ -40,11 +40,8 @@ export const buildHitter = () => {
     
     hitter.position.set(0, 0, 0);
     
-    hitter.rotateY(THREE.MathUtils.degToRad(90)); 
-    hitter.rotateZ(THREE.MathUtils.degToRad(90)); 
+    hitter.rotateX(THREE.MathUtils.degToRad(90)); 
 
-    hitter.geometry.scale(0.5, 1, 1);
-    
     return hitter;
 }
 

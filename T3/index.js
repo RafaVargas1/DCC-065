@@ -136,7 +136,7 @@ let ball,
   aditionalBallVelocity,
   colissionDetected,
   mustCheckIgnoreColision,
-  lifes,
+  lifes = 5,
   activeScreen = true;
 
 let startScreen = document.getElementById("start-screen");
@@ -184,7 +184,7 @@ const initializeGame = (mustReset = false) => {
   aditionalBallVelocity = null;
   colissionDetected = false;
   mustCheckIgnoreColision = true;
-  lifes = 5;
+  lifes = mustReset ? 5 : lifes;
 };
 
 initializeGame();
