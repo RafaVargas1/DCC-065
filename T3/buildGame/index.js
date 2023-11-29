@@ -15,6 +15,7 @@ const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, shinine
 const phongWhiteMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: "200", specular: "rgb(255, 255, 255)" });
 
 const texture = textureLoader.load("../assets/textures/doubleHitBrick.jpg");
+const hitterTexture = textureLoader.load("../assets/textures/hitter.jpg");
 
 const wallThickness = 0.5;
 const brickHeight = 0.6;
@@ -229,7 +230,9 @@ export const buildGame = (baseScenario, gameWidth, fase, isMobile, camera, rende
 
     let hitter = CSG.toMesh(hitterCSG, new THREE.Matrix4());
 
-    hitter.material = phongBlueMaterial;
+    const hitterMaterial = phongBlueMaterial;
+    hitterMaterial.map = hitterTexture;
+    hitter.material = hitterMaterial;
 
     hitter.position.set(0, 0, 0);
     hitter.translateY((3.1 * gameWidth) / -2);
@@ -247,49 +250,6 @@ export const buildGame = (baseScenario, gameWidth, fase, isMobile, camera, rende
 
     return ({hitter, auxMobileHitter});
   }
-
-  //const buildHitter = () => {
-  //  const hitterRadius = (0.225 * gameWidth) / 2;
-  //
-  //  const cylinderGeometry = new THREE.CylinderGeometry(hitterRadius, hitterRadius, brickHeight);
-  //  const boxGeometry = new THREE.BoxGeometry(3, 10, 10);
-  //
-  //  const cylinder = new THREE.Mesh(cylinderGeometry, lambertBlueMaterial);
-  //  const rectangle = new THREE.Mesh(boxGeometry, lambertBlueMaterial);
-  //
-  //  cylinder.position.copy(new THREE.Vector3(0, 0, 0));
-  //  rectangle.position.copy(new THREE.Vector3(2, 0, 0));
-  //
-  //  cylinder.matrixAutoUpdate = false;
-  //  cylinder.updateMatrix();
-  //  let cylinderCSG = CSG.fromMesh(cylinder);
-  //
-  //  rectangle.matrixAutoUpdate = false;
-  //  rectangle.updateMatrix();
-  //  let rectangleCSG = CSG.fromMesh(rectangle);
-  //
-  //  let hitterCSG = cylinderCSG.intersect(rectangleCSG);
-  //
-  //  let hitter = CSG.toMesh(hitterCSG, new THREE.Matrix4());
-  //
-  //  hitter.material = lambertBlueMaterial;
-  //
-  //  hitter.position.set(0, 0, 0);
-  //  hitter.translateY((1.775 * gameWidth) / -2);
-  //  hitter.translateZ(0.8);
-  //
-  //  hitter.rotateY(THREE.MathUtils.degToRad(90));
-  //  hitter.rotateZ(THREE.MathUtils.degToRad(90));
-  //
-  //  hitter.name = "hitter";
-  //  hitter.castShadow = true;
-  //
-  //  hitter.geometry.scale(0.5, 1, 1);
-  //
-  //  baseScenario.add(hitter);
-  //
-  //  return hitter;
-  //}
 
   const wallsArray = buildWalls();
   const hitterObject = buildHitter(isMobile, camera);

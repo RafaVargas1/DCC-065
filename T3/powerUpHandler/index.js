@@ -5,7 +5,7 @@ const textureLoader = new THREE.TextureLoader();
 export const generatePowerUp = (brick, brickWidth, baseScenario, powerUpType) => {
     const brickHeight = 0.8;
 
-    const path = "../assets/textures/" + powerUpType + ".png";
+    const path = "./assets/textures/" + powerUpType + ".png";
 
     const texture = textureLoader.load(path);
 

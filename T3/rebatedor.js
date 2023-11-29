@@ -16,6 +16,10 @@ orbit = new OrbitControls(camera, renderer.domElement);
 
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
+const textureLoader = new THREE.TextureLoader();
+
+const texture = textureLoader.load("./assets/textures/hitter.jpg");
+
 export const buildHitter = () => {
     const cylinderGeometry = new THREE.CylinderGeometry(10, 10, 0.8);
     const boxGeometry = new THREE.BoxGeometry(20, 0.8, 20);
@@ -38,7 +42,9 @@ export const buildHitter = () => {
 
     let hitter = CSG.toMesh(hitterCSG, new THREE.Matrix4());
 
-    hitter.material = new THREE.MeshPhongMaterial({ color: 'blue' });
+    const hitterMaterial = new THREE.MeshPhongMaterial({ color: 0x555555 });
+    hitterMaterial.map = texture;
+    hitter.material = hitterMaterial;
 
     hitter.position.set(0, 0, 0);
 
@@ -52,29 +58,30 @@ export const loadModel = (baseScenario) => {
     var MTLloader = new MTLLoader();
     var OBJloader = new OBJLoader();
 
-    MTLloader.load("./assets/models/spaceship.mtl", function (materials) {
+    MTLloader.load("./assets/models/starwars.mtl", function (materials) {
         materials.preload();
 
-        OBJloader.setMaterials(materials).load("./assets/models/spaceship.obj", function (model) {
-            let obj = model;
+        OBJloader.setMaterials(materials);
+        OBJloader.load("./assets/models/starwars.obj", function (obj) {
             obj.traverse(function (child) {
-                if (child.isMesh) child.castShadow = true;
+                if (child.isMesh) {
+                    child.castShadow = true;
+                }
             });
 
             spaceship = obj;
 
-            baseScenario.add(spaceship);
-
             var mat4 = new THREE.Matrix4();
             spaceship.matrixAutoUpdate = false;
             spaceship.matrix.identity();
-            spaceship.matrix.multiply(mat4.makeRotationX(THREE.MathUtils.degToRad(-90)));
-            spaceship.matrix.multiply(mat4.makeRotationZ(THREE.MathUtils.degToRad(180)));
-            spaceship.matrix.multiply(mat4.makeTranslation(0, 0, 8.8));
-            spaceship.matrix.multiply(mat4.makeScale(0.01, 0.01, 0.006));
+            spaceship.matrix.multiply(mat4.makeRotationY(THREE.MathUtils.degToRad(-90)));
+            spaceship.matrix.multiply(mat4.makeRotationZ(THREE.MathUtils.degToRad(-90)));
+            spaceship.matrix.multiply(mat4.makeTranslation(-8.4, 0, -1.3));
+            spaceship.matrix.multiply(mat4.makeScale(1, 1, 1));
 
+            baseScenario.add(spaceship);
         }, null, null);
-    } ,null, null);
+    }, null, null);
 }
 
 const boxGeometry = new THREE.BoxGeometry(0, 0, 0);
