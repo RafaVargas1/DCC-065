@@ -25,9 +25,6 @@ import { OrbitControls } from '../build/jsm/controls/OrbitControls.js'
 import { Buttons } from "../libs/other/buttons.js";
 let buttons = new Buttons(onButtonDown, onButtonUp);
 
-import {DragControls} from '../build/jsm/controls/DragControls.js'
-
-
 const startVelocity = 0.15;
 const time = 15;
 let resultantVelocity = .125;
@@ -49,6 +46,8 @@ let actualStage = 1;
 const mustInitialize = new Event("initialize");
 const changeStage = new Event("changeStage");
 
+let startButton = document.getElementById("start");
+
 function onButtonDown(event) {
   switch(event.target.id)
   {
@@ -59,10 +58,9 @@ function onButtonDown(event) {
 
      break;
     case "start":
-      let startButton = document.getElementById("start");
-    startButton.remove();
+      startButton.style.display = "none";
 
-      if (!gameRunning && !gameStart && !gameFinish && !activeScreen) {
+      if (!gameRunning && !gameStart && !gameFinish) {
         elapsedTime = 0;
         gameStart = true;
         gameRunning = true;
@@ -144,6 +142,7 @@ const [backgroundContainer, backgroundContent] = setupBackground(screenWidth, sc
 lightInitialization(scene);
 
 let ball,
+  auxiliar,
   aditionalBall,
   wallsArray,
   bricksMatrix,
@@ -164,7 +163,8 @@ let ball,
   colissionDetected,
   mustCheckIgnoreColision,
   lifes,
-  activeScreen = true;
+  activeScreen = true,
+  isMobile = true;
 
 // let startScreen = document.getElementById("start-screen");
 // startScreen.remove()
@@ -185,15 +185,16 @@ const initializeGame = (mustReset = false) => {
   let components;
 
   if (mustReset) {
-    components = buildGame(backgroundContent, gameWidth, 1);
+    components = buildGame(backgroundContent, gameWidth, 1, isMobile, camera);
   } else {
-    components = buildGame(backgroundContent, gameWidth, 1);
+    components = buildGame(backgroundContent, gameWidth, 1, isMobile, camera, renderer);
   }
 
   ball = components.ball;
   wallsArray = components.wallsArray;
   bricksMatrix = components.bricksMatrix;
   hitter = components.hitter;
+  auxiliar = components.auxiliar;
   brickWidth = components.brickWidth;
 
   ballPosition = ball.position;
@@ -216,16 +217,16 @@ const initializeGame = (mustReset = false) => {
 
 initializeGame();
 
-let dragControl = new DragControls(hitter, camera, renderer.domElement);
-dragControl.activate();
-
 const onMouseClick = () => {
+  console.log("teste")
   if (!gameRunning && !gameStart && !gameFinish && !activeScreen) {
     elapsedTime = 0;
     gameStart = true;
     gameRunning = true;
     ballVelocity = new THREE.Vector3(0, startVelocity, 0);
   }
+
+  console.log(ballVelocity)
 };
 
 const resetColission = () => {
@@ -310,6 +311,18 @@ const checkEnd = () => {
 
 const render = () => {
   requestAnimationFrame(render);
+
+  if (isMobile){
+    if (auxiliar.position.x > 5) {
+      auxiliar.position.x = 5;
+    } else if ( auxiliar.position.x < -5){
+      auxiliar.position.x = -5;
+    }
+    hitter.position.x = auxiliar.position.x;
+    
+    auxiliar.position.y = hitter.position.y;
+    auxiliar.position.z = hitter.position.z;
+  }
 
   checkEnd();
 
@@ -440,7 +453,8 @@ const render = () => {
     aditionalBallVelocity,
     backgroundContent,
     mustCheckIgnoreColision,
-    lifes
+    lifes,
+    startButton
   ));
 
   ({ aditionalBallVelocity } = aditionalWallColisionHandler(aditionalBall, wallsArray, aditionalBallVelocity));
