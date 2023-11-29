@@ -29,7 +29,7 @@ const buildGameContainer = (screenWidth, screenHeight) => {
 
 const buildGameBox = (gameWidth) => {
   const geometry = new THREE.PlaneGeometry(gameWidth, 2 * gameWidth);
-  const material = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0 });
+  const material = new THREE.MeshLambertMaterial({ transparent: true, opacity: 0.1 });
 
   const gamePlatform = new THREE.Mesh(geometry, material);
 
