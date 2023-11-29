@@ -320,8 +320,8 @@ const render = () => {
     }
     hitter.position.x = auxiliar.position.x;
     
-    auxiliar.position.y = hitter.position.y;
-    auxiliar.position.z = hitter.position.z;
+    auxiliar.position.y = hitter.position.y + hitter.userData.radius;
+    auxiliar.position.z = 0;
   }
 
   checkEnd();

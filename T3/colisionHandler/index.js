@@ -128,7 +128,8 @@ export const floorColisionHandler = (
       hitter.position.copy(new THREE.Vector3(0.0, (3.1 * 14) / -2, 0.8));
       lifes--;
 
-      startButton.style.display = "block";
+      if (startButton)
+        startButton.style.display = "block";
 
       if (aditionalBall != null) {
         baseScenario.remove(aditionalBall[0]);

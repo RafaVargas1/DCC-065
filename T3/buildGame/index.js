@@ -198,20 +198,15 @@ export const buildGame = (baseScenario, gameWidth, fase, isMobile, camera, rende
 
   const buildHitter = (isMobile, camera) => {
     let auxMobileHitter;
-    
+
+
+
     if (isMobile) {
-      let geometry = new THREE.BoxGeometry(2, 4, 2);    
+      const geometry = new THREE.BoxGeometry(2, 6, 2);  
       auxMobileHitter = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }) );
-      // auxMobileHitter.material.transparent = true;
-
-      auxMobileHitter.position.set(0, 0, 0);
-      auxMobileHitter.translateY((3.1 * gameWidth) / -2);
-      auxMobileHitter.translateZ(0.8);
-
+      auxMobileHitter.position.set(0, 0, 0)
       baseScenario.add(auxMobileHitter);
-
-      let dragControl = new DragControls([auxMobileHitter], camera, renderer.domElement);
-      dragControl.activate();
+      new DragControls([auxMobileHitter], camera, renderer.domElement);
     }
 
     const cylinderGeometry = new THREE.CylinderGeometry(10, 10, 0.8);
