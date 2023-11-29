@@ -94,6 +94,7 @@ render();
 function loadGLBFile(modelName, centerObject, sound = null) {
    var loader = new GLTFLoader();
    loader.load(modelName, function (gltf) {
+      console.log(gltf);
       var obj = gltf.scene;
       obj.traverse(function (child) {
          if (child.isMesh) child.castShadow = true;

@@ -658,7 +658,7 @@ export const hitterColisionHandler = (ball, ballVelocity, hitter, colissionDetec
 
       const reflectionVector = incidentVector.reflect(normal);
 
-      ballVelocity.copy(new THREE.Vector3(reflectionVector.x, reflectionVector.y, 0));
+      ballVelocity.copy(new THREE.Vector3(reflectionVector.x, reflectionVector.y < 0.15 ? 0.15 : reflectionVector.y, 0));
 
       hitterColision.play();
       hitterColision.isPlaying = false;
@@ -690,7 +690,7 @@ export const aditionalHitterColisionHandler = (ball, ballVelocity, hitter, colis
 
       const reflectionVector = incidentVector.reflect(normal);
 
-      ballVelocity[index].copy(new THREE.Vector3(reflectionVector.x, reflectionVector.y, 0));
+      ballVelocity[index].copy(new THREE.Vector3(reflectionVector.x, reflectionVector.y < 0.15 ? 0.15 : reflectionVector.y, 0));
 
       hitterColision.play();
       hitterColision.isPlaying = false;
