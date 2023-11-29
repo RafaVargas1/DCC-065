@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { CSG } from "../../libs/other/CSGMesh.js";
+import {DragControls} from '../../build/jsm/controls/DragControls.js'
 
 const textureLoader = new THREE.TextureLoader();
 
@@ -145,7 +146,7 @@ export const buildBricks = (baseScenario, fase, gameWidth) => {
   return { bricksMatrix, brickWidth };
 }
 
-export const buildGame = (baseScenario, gameWidth, fase) => {
+export const buildGame = (baseScenario, gameWidth, fase, isMobile, camera, renderer) => {
   const buildBall = () => {
     const ballGeometry = new THREE.SphereGeometry(0.2);
 
@@ -194,7 +195,24 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
     return wallsArray;
   };
 
-  const buildHitter = () => {
+  const buildHitter = (isMobile, camera) => {
+    let auxMobileHitter;
+    
+    if (isMobile) {
+      let geometry = new THREE.BoxGeometry(2, 4, 2);    
+      auxMobileHitter = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 }) );
+      // auxMobileHitter.material.transparent = true;
+
+      auxMobileHitter.position.set(0, 0, 0);
+      auxMobileHitter.translateY((3.1 * gameWidth) / -2);
+      auxMobileHitter.translateZ(0.8);
+
+      baseScenario.add(auxMobileHitter);
+
+      let dragControl = new DragControls([auxMobileHitter], camera, renderer.domElement);
+      dragControl.activate();
+    }
+
     const cylinderGeometry = new THREE.CylinderGeometry(10, 10, 0.8);
     const boxGeometry = new THREE.BoxGeometry(20, 0.8, 20);
 
@@ -232,7 +250,7 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
 
     baseScenario.add(hitter);
 
-    return hitter;
+    return ({hitter, auxMobileHitter});
   }
 
   //const buildHitter = () => {
@@ -279,12 +297,13 @@ export const buildGame = (baseScenario, gameWidth, fase) => {
   //}
 
   const wallsArray = buildWalls();
-  const hitter = buildHitter();
+  const hitterObject = buildHitter(isMobile, camera);
   const ball = buildBall();
   const { bricksMatrix, brickWidth } = buildBricks(baseScenario, fase, gameWidth);
 
   return {
-    hitter,
+    hitter: hitterObject.hitter,
+    auxiliar: hitterObject.auxMobileHitter,
     ball,
     wallsArray,
     bricksMatrix,

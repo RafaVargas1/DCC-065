@@ -115,7 +115,9 @@ export const floorColisionHandler = (
   aditionalBallVelocity,
   baseScenario,
   mustCheckIgnoreColision,
-  lifes
+  lifes,
+  startButton 
+
 ) => {
   const detectColision = () => {
     if (ball.position.y < (2 * gameWidth) / -2) {
@@ -125,6 +127,8 @@ export const floorColisionHandler = (
       gameStart = false;
       hitter.position.copy(new THREE.Vector3(0.0, (3.1 * 14) / -2, 0.8));
       lifes--;
+
+      startButton.style.display = "block";
 
       if (aditionalBall != null) {
         baseScenario.remove(aditionalBall[0]);
