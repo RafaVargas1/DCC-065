@@ -14,8 +14,8 @@ const lambertYellowMaterial = new THREE.MeshLambertMaterial({ color: 0xeeff00 })
 const phongBlueMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff, shininess: "200", specular: "rgb(255, 255, 255)" });
 const phongWhiteMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: "200", specular: "rgb(255, 255, 255)" });
 
-const texture = textureLoader.load("../assets/textures/doubleHitBrick.jpg");
-const hitterTexture = textureLoader.load("../assets/textures/hitter.jpg");
+const texture = textureLoader.load("./assets/textures/doubleHitBrick.jpg");
+const hitterTexture = textureLoader.load("./assets/textures/hitter.jpg");
 
 const wallThickness = 0.5;
 const brickHeight = 0.6;
